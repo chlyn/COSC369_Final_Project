@@ -1,0 +1,130 @@
+/* ------------------------------------------------------------------------------------------
+
+
+CSS TABLE OF CONTENTS:
+
+1. Base                 imports, design tokens, global stuff
+2. Layout               side bar, main content, top bar, 
+3. Components           chat input, mic & send buttons
+4. Pages                welcome, chat, schedule, profile, login, create account
+
+
+------------------------------------------------------------------------------------------ */
+
+
+
+/* IMPORTING ALL CSS FILES */
+@import url("./base.css");
+@import url("./layout.css");
+@import url("./components.css");
+@import url("./pages/welcome.css");
+@import url("./pages/chat.css");
+@import url("./pages/schedule.css");
+
+
+
+/* COLORS */
+:root {
+    /* Background colorss */
+    --background-default: #FFFFFF;
+    --background-main: #F9F7FD;
+
+    /* Main color palette */
+    --color-primary-default: #874FCE;
+    --color-primary-hover: #733DB5;
+    --color-primary-active: #613693;
+    --color-secondary: #9D6EDE;
+    --color-tertiary: #B996EA;
+    --color-accent: #D4BFF3;
+    --color-accent-strong: #D8D3E6;
+
+    /* Danger (errors, critical actions) */
+    --danger-default: #C1367C;
+    --danger-hover: #A72D6B;
+    --danger-active: #8B2558;  
+    --danger-bg: #FCE7F3;    
+    --danger-border: #F9A8D4; 
+    --danger-text: #A72D6B;
+
+    /* Borders and Dividers */
+    --border-default: #D4BFF3;
+    --border-strong: #B996EA;
+    --divider-default: #E6DBF9;
+    
+    /* Text color palette */
+    --text-primary: #1F1D2B;
+    --text-secondary: #6B7280;
+    --text-accent: #9D6EDE;          
+    --text-on-primary: #FFFFFF;
+
+    /* Calendar course colors */
+    --course-color-red: #F28A9C;
+    --course-color-orange: #F5A86A;
+    --course-color-yellow: #F7D774;
+    --course-color-green: #88D4A3;
+    --course-color-blue: #8AB9F8;
+    --course-color-pink: #F7A7D3;
+    --course-color-mint: #7ADFD6;
+    --course-color-gray: #BFC6D1;
+    --course-color-brown: #C99F80;
+    --course-color-teal: #6CC4C8;
+    
+    /* Shadows */
+    --shadow-xs: 
+        0 1px 2px rgba(135, 79, 206, 0.05),
+        0 1px 3px rgba(0, 0, 0, 0.05);
+
+    --shadow-sm: 
+        0 2px 4px rgba(135, 79, 206, 0.07),
+        0 2px 6px rgba(0, 0, 0, 0.06);
+
+    --shadow-md: 
+        0 4px 8px rgba(135, 79, 206, 0.12),
+        0 2px 4px rgba(0, 0, 0, 0.08);
+
+    --shadow-lg:
+        0 8px 16px rgba(135, 79, 206, 0.18),
+        0 4px 6px rgba(0, 0, 0, 0.12);
+
+    --shadow-xl:
+        0 12px 24px rgba(135, 79, 206, 0.22),
+        0 6px 12px rgba(0, 0, 0, 0.15);
+
+
+    --shadow-glow:
+        0 0 0 3px rgba(157, 110, 222, 0.40),
+        0 0 12px rgba(157, 110, 222, 0.30);
+        
+}
+
+
+
+/* GLOBAL STYLES */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    display: flex;
+    align-items: center; 
+    justify-content: center;
+    background-color: var(--background-main);
+    font-family: 'Open Sans', sans-serif !important;
+}
+
+.content {
+    width: 100vw; 
+    height: 100vh;
+    background: var(--background-main); 
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.063); 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: stretch; 
+    text-align: left; 
+    overflow: hidden;
+}

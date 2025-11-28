@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Powered Schedule</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="style/base.css">
+    
+</head>
+
+<body>
+    <div class="content">
+
+        <!-- SIDEBAR -->
+        <div class="sidebar" id="sidebar">
+
+            <!-- App Title -->
+            <div class="app-title">
+
+                <span class="material-icons">edit_calendar</span>
+                <h2>AI Powered Schedule</h2>
+
+            </div>
+
+            <hr class="sidebar-divider">
+
+            <!-- Navigation -->
+            <div class="navbar">
+
+                <p class="sidebar-title">Main</p>
+
+                <button class="nav-item active" data-page="page-chat" data-title="New Chat">
+                    <span class="material-icons">chat_bubble</span>
+                    <span>New Chat</span>
+                </button>
+
+                <button class="nav-item" data-page="page-schedule" data-title="Weekly Schedule">
+                    <span class="material-icons">calendar_today</span>
+                    <span>Schedule</span>
+                </button>
+
+            </div>
+
+            <hr class="sidebar-divider">
+
+            <!-- Chat History -->
+            <div class="chat-history">
+
+                <p class="sidebar-title">Chat History</p>
+
+                <ul>
+                    <li>Conversation 1</li>
+                    <li>Conversation 2</li>
+                    <li>Conversation 3</li>
+                </ul>
+
+            </div>
+
+            <hr class="sidebar-divider">
+
+            <!-- User Profile -->
+            <div class="user-profile">
+
+                <button class="profile-btn" id="profile-btn">
+
+                    <span class="profile-img">JD</span>
+
+                    <div class="profile-info">
+                        <p class="profile-name">Jane Doe</p>
+                        <p class="profile-username">doej0123</p>
+                    </div>
+
+                </button>
+
+                <div class="profile-menu" id="profile-menu">
+
+                    <button class="profile-menu-item" data-page="page-profile" data-title="My Profile">Profile</button>
+                    <button class="profile-menu-item">Sign Out</button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="main-content" id="main-content">
+
+            <!-- TOP BAR -->
+            <div class="topbar">
+                <h1 class="topbar-title" id="topbar-title"></h1>
+            </div>
+
+            <!-- WELCOME PAGE -->
+            <section id="page-welcome" class="page active">
+
+                <!-- Welcome Message -->
+                <div class="welcome-message">
+
+                    <span class="material-icons">edit_calendar</span>
+
+                    <div class="welcome-text">
+                        <span class="text_1">Hello, Jane!</span>
+                        <span class="text_2">How can I help you?</span>
+                    </div>
+
+                </div>
+
+                <!-- Chat Input -->
+                <div class="chat-input">
+
+                    <input type="text" placeholder="Ask anything..."/>
+                    
+                    <button class="mic">
+                        <span class="material-icons">mic</span>
+                    </button>
+                    
+                    <button class="send" onclick="sendMessage()">
+                        <span class="material-icons">send</span>
+                    </button>
+
+                </div>
+
+                <!-- Suggested Prompts -->
+                <div class="suggested-prompts" id="suggested-prompts"></div>
+
+            </section>
+
+            <!-- CHAT PAGE -->
+            <section id="page-chat" class="page">
+
+                <!-- Chat Messages -->
+                <div class="chat-messages" id="chat-messages"></div>
+
+                <!-- Chat Input -->
+                <div class="chat-input">
+
+                    <input type="text" placeholder="Ask a question..."/>
+                    
+                    <button class="mic">
+                        <span class="material-icons">mic</span>
+                    </button>
+                    
+                    <button class="send">
+                        <span class="material-icons">send</span>
+                    </button>
+
+                </div>
+
+            </section>
+
+            <!-- SCHEDULE PAGE -->
+            <section id="page-schedule" class="page">
+
+                <!-- Action Bar (Semester Filter & Add Class Button) -->
+                <div class="actionbar">
+                    
+                    <button class="semester-btn" id="semester-btn">
+                        <span>Semester</span>
+                        <span class="material-icons">expand_more</span>
+                    </button>
+
+                    <div class="semester-menu" id="semester-menu">
+                        <button class="semester-menu-item">Fall 2025</button>
+                        <button class="semester-menu-item">Winter 2026</button>
+                        <button class="semester-menu-item">Spring 2026</button>
+                    </div>
+
+                    <button class="add-btn">
+                        <span class="material-icons">add</span>
+                        <span>Add Class</span>
+                    </button>
+
+                </div>
+
+                <!-- Calendar -->
+                <div class="calendar">
+
+                    <div class="calendar-container">
+                        <div class="calendar-grid" id="calendar-grid"></div>
+                    </div>
+
+                </div>
+
+                <!-- Courses -->
+                <div class="courses">
+
+                    <div class="courses-container">
+
+                        <h1 class="courses-title" id="courses-title">Courses</h1>
+
+                        <!-- Courses List -->
+                        <div class="courses-list">
+
+                            <!-- Course 1 -->
+                            <div class="course-card">
+
+                                <span class="course-color course-color-1"></span>
+
+                                <div class="course-content">
+
+                                    <div class="course-header">
+
+                                        <div>
+                                            <div class="course-number">ENGR 110</div>
+                                            <div class="course-name">Introduction to Engineering Design</div>
+                                        </div>
+
+                                        <button class="course-remove-btn">
+                                            <span class="material-icons">close</span>
+                                        </button>
+
+                                    </div>
+
+                                    <div class="course-details">
+
+                                        <div class="details">
+
+                                            <div class="detail-item">
+                                                <span class="material-icons detail-icon">person</span>
+                                                <span class="detail-text">Dr. Elaine Bradford</span>
+                                            </div>
+
+                                            <div class="detail-item">
+                                                <span class="material-icons detail-icon">access_time</span>
+                                                <span class="detail-text">10:00 AM – 11:15 AM</span>
+                                            </div>
+
+                                        </div>
+
+                                        <div class="details">
+
+                                            <div class="detail-item">
+                                                <span class="material-icons detail-icon">location_on</span>
+                                                <span class="detail-text">ELC Room 204</span>
+                                            </div>
+
+                                            <div class="detail-item">
+                                                <span class="material-icons detail-icon">calendar_today</span>
+                                                <span class="detail-text">Mon & Wed</span>
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <!-- Course 2 -->
+                            <div class="course-card">
+
+                                <span class="course-color course-color-2"></span>
+
+                                <div class="course-content">
+
+                                    <div class="course-header">
+
+                                        <div>
+                                            <div class="course-number">MATH 251</div>
+                                            <div class="course-name">Discrete Mathematics</div>
+                                        </div>
+
+                                        <button class="course-remove-btn">
+                                            <span class="material-icons">close</span>
+                                        </button>
+
+                                    </div>
+
+                                    <div class="course-details">
+
+                                        <div class="details">
+
+                                            <div class="detail-item">
+                                                <span class="material-icons detail-icon">person</span>
+                                                <span class="detail-text">Prof. Samuel Turner</span>
+                                            </div>
+
+                                            <div class="detail-item">
+                                                <span class="material-icons detail-icon">access_time</span>
+                                                <span class="detail-text">1:00 PM – 2:15 PM</span>
+                                            </div>
+
+                                        </div>
+
+                                        <div class="details">
+
+                                            <div class="detail-item">
+                                                <span class="material-icons detail-icon">location_on</span>
+                                                <span class="detail-text">CNSMN Room 118</span>
+                                            </div>
+
+                                            <div class="detail-item">
+                                                <span class="material-icons detail-icon">calendar_today</span>
+                                                <span class="detail-text">Tue & Thu</span>
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                                
+                            </div>
+
+                            <!-- Course 3 -->
+                            <div class="course-card">
+
+                                <span class="course-color course-color-3"></span>
+
+                                <div class="course-content">
+
+                                    <div class="course-header">
+
+                                        <div>
+                                            <div class="course-number">ENGR 110</div>
+                                            <div class="course-name">Introduction to Engineering Design</div>
+                                        </div>
+
+                                        <button class="course-remove-btn">
+                                            <span class="material-icons">close</span>
+                                        </button>
+
+                                    </div>
+
+                                    <div class="course-details">
+
+                                        <div class="details">
+
+                                            <div class="detail-item">
+                                                <span class="material-icons detail-icon">person</span>
+                                                <span class="detail-text">Dr. Maria Velasque</span>
+                                            </div>
+
+                                            <div class="detail-item">
+                                                <span class="material-icons detail-icon">access_time</span>
+                                                <span class="detail-text">9:30 AM – 12:00 PM</span>
+                                            </div>
+
+                                        </div>
+
+                                        <div class="details">
+
+                                            <div class="detail-item">
+                                                <span class="material-icons detail-icon">location_on</span>
+                                                <span class="detail-text">TML Lab 3B</span>
+                                            </div>
+
+                                            <div class="detail-item">
+                                                <span class="material-icons detail-icon">calendar_today</span>
+                                                <span class="detail-text">Fri</span>
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                    
+                </div>
+
+            </section>
+
+            <!-- PROFILE PAGE -->
+            <section id="page-profile" class="page">
+                <p>This is where profile info will go.</p>
+            </section>
+
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+
+</body>
+</html>

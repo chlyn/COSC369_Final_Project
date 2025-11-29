@@ -6,6 +6,8 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import mongoose from "mongoose";
+import Conversation from "./models/conversation.model.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -42,12 +44,43 @@ app.get("/", (req, res) => {
 // Chat route
 app.post("/api/chat", async (req, res) => {
   try {
-    const { message, history } = req.body;
+    const { message, history, conversationId } = req.body;
 
     if (!message || typeof message !== "string") {
       return res.status(400).json({ error: "Message is required." });
     }
 
+    // ------------------------------------------------------------
+    // 1) Find or create conversation
+    // ------------------------------------------------------------
+    let convo = null;
+
+    if (conversationId) {
+      try {
+        convo = await Conversation.findById(conversationId);
+      } catch (e) {
+        // if invalid id or not found, we just create a new one below
+      }
+    }
+
+    if (!convo) {
+      const shortTitle =
+        message.length > 40
+          ? message.slice(0, 37) + "..."
+          : message || "New Chat";
+
+      convo = new Conversation({
+        title: shortTitle,
+        messages: [],
+      });
+    }
+
+    // Add the current user message to the conversation
+    convo.messages.push({ role: "user", content: message });
+
+    // ------------------------------------------------------------
+    // 2) Build the Gemini prompt
+    // ------------------------------------------------------------
     const systemPrompt = `
     You are a direct, concise schedule helper.
 
@@ -68,7 +101,9 @@ app.post("/api/chat", async (req, res) => {
     - Do not introduce yourself unless asked.
     - Keep responses focused on scheduling, classes, and time management.
     - Ask follow-up questions only when necessary.
-        
+    - If the user just greets you (e.g., "hi", "hello"), respond with a short greeting
+      first (e.g., "Hi! How can I help with your schedule today?").
+
     FORMAT RULES (IMPORTANT):
     - When the user asks to SHOW or LIST classes or the schedule, respond in this format:
 
@@ -76,10 +111,10 @@ app.post("/api/chat", async (req, res) => {
     <table> ... </table>
 
     - The intro sentence must be simple and direct, such as:
-    - "Here is your weekly schedule:"
-    - "Here are the classes you're taking:"
-    - "Here are the available classes without conflicts:"
-    - "Here are the classes you asked about:"
+      - "Here is your weekly schedule:"
+      - "Here are the classes you're taking:"
+      - "Here are the available classes without conflicts:"
+      - "Here are the classes you asked about:"
 
     - After the intro sentence, output ONLY raw HTML for the table.
     - Do NOT wrap the table in backticks, Markdown, or quotes.
@@ -104,8 +139,7 @@ app.post("/api/chat", async (req, res) => {
     </tr>
     </table>
 
-    NO explanations, NO backticks, NO formatting around it.
-    Just the table.
+    THIS IS MANDATORY: if you show a schedule or list of classes, always include the intro sentence, followed by the table, and nothing after the table.
     `;
 
     const historyText = (history || [])
@@ -125,14 +159,86 @@ USER: ${message}
     const response = await result.response;
     const replyText = response.text();
 
-    res.json({ reply: replyText });
+    // ------------------------------------------------------------
+    // 3) Save assistant reply to conversation
+    // ------------------------------------------------------------
+    convo.messages.push({ role: "assistant", content: replyText });
+    await convo.save();
+
+    // Send reply + conversationId back
+    res.json({
+      reply: replyText,
+      conversationId: convo._id.toString(),
+    });
   } catch (err) {
     console.error("Error in /api/chat:", err);
     res.status(500).json({ error: "Failed to contact Gemini API" });
   }
 });
 
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  console.log(`Server listening on http://localhost:${PORT}`);
+// -----------------------------------------------------------------------------
+// Get list of conversations (for sidebar history)
+// -----------------------------------------------------------------------------
+app.get("/api/conversations", async (req, res) => {
+  try {
+    const convos = await Conversation.find({}, "title updatedAt")
+      .sort({ updatedAt: -1 })
+      .lean();
+
+    const result = convos.map((c) => ({
+      id: c._id.toString(),
+      title: c.title || "Untitled chat",
+      updatedAt: c.updatedAt,
+    }));
+
+    res.json(result);
+  } catch (err) {
+    console.error("Error in GET /api/conversations:", err);
+    res.status(500).json({ error: "Failed to fetch conversations" });
+  }
 });
+
+// -----------------------------------------------------------------------------
+// Get a single conversation's messages
+// -----------------------------------------------------------------------------
+app.get("/api/conversations/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const convo = await Conversation.findById(id);
+
+    if (!convo) {
+      return res.status(404).json({ error: "Conversation not found" });
+    }
+
+    res.json({
+      id: convo._id.toString(),
+      title: convo.title,
+      messages: convo.messages,
+    });
+  } catch (err) {
+    console.error("Error in GET /api/conversations/:id:", err);
+    res.status(500).json({ error: "Failed to fetch conversation" });
+  }
+});
+
+const PORT = process.env.PORT || 3001;
+
+// Make sure MONGO_URL exists
+if (!process.env.MONGO_URL) {
+  console.error("MONGO_URL is missing in .env");
+  process.exit(1);
+}
+
+mongoose
+  .connect(process.env.MONGO_URL)
+  .then(() => {
+    console.log("Connected to MongoDB");
+
+    app.listen(PORT, () => {
+      console.log(`Server listening on http://localhost:${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error("Failed to connect to MongoDB:", err.message);
+    process.exit(1);
+  });

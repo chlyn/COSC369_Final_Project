@@ -2,69 +2,93 @@
 /* CHAT TYPE INPUT TEXTBOX */
 
 .chat-input input {
-    flex: 1;
-    border: none;
-    outline: none;
-    font-size: 16px;
-    background: transparent;
-    color: var(--text-primary);
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 16px;
+  background: transparent;
+  color: var(--text-primary);
 }
-
-
 
 /* ------------------------------------------------------------------------------------------ */
 /* CHAT TEXTBOX BUTTONS */
 
 .chat-input .mic,
 .chat-input .send {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    border-radius: 999px;
-    border: none;
-    cursor: pointer;
-    background: transparent;
-    transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  background: transparent;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
 }
 
 .material-icons {
-    font-size: 20px;
+  font-size: 20px;
 }
-
-
 
 /* ------------------------------------------------------------------------------------------ */
 /* MIC BUTTON */
 
 /* Icon */
 .chat-input .mic .material-icons {
-    color: var(--text-secondary);
-    font-size: 24px;
+  color: var(--text-secondary);
+  font-size: 24px;
 }
 
 /* Button nteraction */
 .chat-input .mic:hover {
-    background: color-mix(in srgb, var(--color-secondary) 10%, transparent);
+  background: color-mix(in srgb, var(--color-secondary) 10%, transparent);
 }
-
-
 
 /* ------------------------------------------------------------------------------------------ */
 /* SEND BUTTON  */
 
 /* Icon */
 .chat-input .send {
-    background: var(--color-primary-default);
-    color: var(--text-on-primary);
+  background: var(--color-primary-default);
+  color: var(--text-on-primary);
 }
 
 /* Button interaction */
 .chat-input .send:hover {
-    background: var(--color-primary-hover);
+  background: var(--color-primary-hover);
 }
 
 .chat-input .send:active {
-    transform: scale(0.97);
+  transform: scale(0.97);
+}
+
+/* ------------------------------------------------------------------------------------------ */
+/* CHAT TABLE  */
+
+.chat-message table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 6px;
+}
+
+.chat-message th,
+.chat-message td {
+  border: 1px solid #dcdce6;
+  padding: 6px 8px;
+  text-align: left;
+  font-size: 0.9rem;
+}
+
+.chat-message th {
+  background: #f7f7fb;
+  font-weight: 600;
+}
+
+.chat-message tr:nth-child(even) td {
+  background: color-mix(in srgb, var(--color-accent-strong) 10%, #ffffff);
+}
+
+.chat-message tr:nth-child(odd) td {
+  background: white;
 }

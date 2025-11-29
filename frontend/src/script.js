@@ -1,4 +1,5 @@
 const CHAT_HISTORY = [];
+let CURRENT_CONVERSATION_ID = null;
 
 document.addEventListener("DOMContentLoaded", () => {
   // ------------------------------------------------------------------------------
@@ -37,6 +38,17 @@ document.addEventListener("DOMContentLoaded", () => {
     btn.addEventListener("click", () => {
       const pageId = btn.dataset.page;
       const title = btn.dataset.title || btn.innerText.trim();
+
+      // If user clicks "New Chat", reset conversation + history
+      if (pageId === "page-chat" && title === "New Chat") {
+        CURRENT_CONVERSATION_ID = null;
+        CHAT_HISTORY.length = 0;
+
+        const container = document.getElementById("chat-messages");
+        if (container) {
+          container.innerHTML = "";
+        }
+      }
 
       // Updating active css style
       navItems.forEach((item) => item.classList.remove("active"));
@@ -307,7 +319,8 @@ async function sendMessage(text) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         message,
-        history: CHAT_HISTORY, // user + assistant turns
+        history: CHAT_HISTORY,
+        conversationId: CURRENT_CONVERSATION_ID,
       }),
     });
 
@@ -318,7 +331,11 @@ async function sendMessage(text) {
     const data = await res.json();
     const reply = data.reply || "Sorry, I couldn't generate a response.";
 
-    // Replace the thinking text with the real reply
+    // update conversation id once backend sends it
+    if (data.conversationId) {
+      CURRENT_CONVERSATION_ID = data.conversationId;
+    }
+
     thinkingBubble.innerHTML = reply;
 
     // Store bot reply in history

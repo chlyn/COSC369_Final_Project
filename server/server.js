@@ -261,6 +261,37 @@ app.delete("/api/conversations/:id", async (req, res) => {
   }
 });
 
+// -----------------------------------------------------------------------------
+// Get the current student's schedule (with full course details)
+// -----------------------------------------------------------------------------
+app.get("/api/schedule", async (req, res) => {
+  try {
+    // For now we use the dummy user; later this becomes req.user.id
+    const classesCatalog = await Course.find({}).lean();
+
+    const currentSchedule = await StudentSchedule.findOne({
+      userId: DEMO_USER_ID,
+      semester: "Fall 2025", // later: make dynamic from query / UI
+    }).lean();
+
+    let enrolledCourses = [];
+
+    if (currentSchedule && currentSchedule.classes?.length) {
+      const idSet = new Set(currentSchedule.classes);
+      enrolledCourses = classesCatalog.filter((c) => idSet.has(c.id));
+    }
+
+    res.json({
+      semester: currentSchedule?.semester || "Fall 2025",
+      classes: enrolledCourses,
+    });
+  } catch (err) {
+    console.error("Error in GET /api/schedule:", err);
+    res.status(500).json({ error: "Failed to load schedule" });
+  }
+});
+
+// add all api endpoints above this line
 const PORT = process.env.PORT || 3001;
 
 // Make sure MONGO_URL exists

@@ -56,6 +56,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Showing the correct page
       showPage(pageId, title);
+
+      // If they navigated to the Schedule page, load courses from backend
+      if (pageId === "page-schedule") {
+        loadScheduleCourses();
+      }
     });
   });
 
@@ -550,5 +555,107 @@ async function loadConversation(conversationId, title) {
     });
   } catch (err) {
     console.error("loadConversation error:", err);
+  }
+}
+
+// ------------------------------------------------------------------------------
+// SCHEDULE PAGE: load student's courses from the backend
+// ------------------------------------------------------------------------------
+
+function buildCourseCardHTML(course, colorIndex = 0) {
+  const colors = [
+    "course-color-1",
+    "course-color-2",
+    "course-color-3",
+    "course-color-4",
+  ];
+  const colorClass = colors[colorIndex % colors.length];
+
+  const { id, name, professor, location, days, start, end } = course;
+
+  const daysText = Array.isArray(days) ? days.join(" & ") : days || "";
+
+  return `
+    <div class="course-card">
+      <span class="course-color ${colorClass}"></span>
+
+      <div class="course-content">
+        <div class="course-header">
+          <div>
+            <div class="course-number">${id || ""}</div>
+            <div class="course-name">${name || ""}</div>
+          </div>
+
+          <!-- X button (not wired to drop yet) -->
+          <button class="course-remove-btn" data-course-id="${id || ""}">
+            <span class="material-icons">close</span>
+          </button>
+        </div>
+
+        <div class="course-details">
+          <div class="details">
+            <div class="detail-item">
+              <span class="material-icons detail-icon">person</span>
+              <span class="detail-text">${professor || ""}</span>
+            </div>
+
+            <div class="detail-item">
+              <span class="material-icons detail-icon">access_time</span>
+              <span class="detail-text">${start || ""} – ${end || ""}</span>
+            </div>
+          </div>
+
+          <div class="details">
+            <div class="detail-item">
+              <span class="material-icons detail-icon">location_on</span>
+              <span class="detail-text">${location || ""}</span>
+            </div>
+
+            <div class="detail-item">
+              <span class="material-icons detail-icon">calendar_today</span>
+              <span class="detail-text">${daysText}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+async function loadScheduleCourses() {
+  const container = document.getElementById("courses-list");
+  const titleEl = document.getElementById("courses-title");
+  if (!container) return;
+
+  container.innerHTML = "<p class='empty-courses'>Loading your courses...</p>";
+
+  try {
+    const res = await fetch("http://localhost:3001/api/schedule");
+    if (!res.ok) throw new Error("Failed to fetch schedule");
+
+    const data = await res.json();
+    const { semester, classes } = data;
+
+    if (titleEl && semester) {
+      titleEl.textContent = `Courses`;
+    }
+
+    if (!classes || !classes.length) {
+      container.innerHTML =
+        "<p class='empty-courses'>You don't have any courses in your schedule yet.</p>";
+      return;
+    }
+
+    const cardsHTML = classes
+      .map((course, idx) => buildCourseCardHTML(course, idx))
+      .join("");
+
+    container.innerHTML = cardsHTML;
+
+    // (Optional) Wire up the X buttons later to call a /api/schedule/drop endpoint
+  } catch (err) {
+    console.error("loadScheduleCourses error:", err);
+    container.innerHTML =
+      "<p class='empty-courses'>Sorry, we couldn't load your courses.</p>";
   }
 }

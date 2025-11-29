@@ -1,3 +1,4 @@
+// models/conversation.model.js
 import mongoose from "mongoose";
 
 const messageSchema = new mongoose.Schema(
@@ -12,23 +13,19 @@ const messageSchema = new mongoose.Schema(
       required: true,
     },
   },
-  {
-    _id: false, // messages don't need their own ids
-    timestamps: false,
-  }
+  { _id: false }
 );
 
 const conversationSchema = new mongoose.Schema(
   {
-    title: {
+    userId: {
       type: String,
       required: true,
     },
+    title: String,
     messages: [messageSchema],
   },
-  {
-    timestamps: true, // createdAt, updatedAt
-  }
+  { timestamps: true }
 );
 
 const Conversation = mongoose.model("Conversation", conversationSchema);

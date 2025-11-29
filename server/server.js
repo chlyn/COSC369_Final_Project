@@ -8,6 +8,9 @@ import path from "path";
 import { fileURLToPath } from "url";
 import mongoose from "mongoose";
 import Conversation from "./models/conversation.model.js";
+import User from "./models/user.model.js";
+
+const DEMO_USER_ID = "demo-student-001";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -51,16 +54,17 @@ app.post("/api/chat", async (req, res) => {
     }
 
     // ------------------------------------------------------------
-    // 1) Find or create conversation
+    // 1) Find or create conversation (scoped to user)
     // ------------------------------------------------------------
     let convo = null;
 
     if (conversationId) {
       try {
-        convo = await Conversation.findById(conversationId);
-      } catch (e) {
-        // if invalid id or not found, we just create a new one below
-      }
+        convo = await Conversation.findOne({
+          _id: conversationId,
+          userId: DEMO_USER_ID,
+        });
+      } catch {}
     }
 
     if (!convo) {
@@ -70,6 +74,7 @@ app.post("/api/chat", async (req, res) => {
           : message || "New Chat";
 
       convo = new Conversation({
+        userId: DEMO_USER_ID, // SET OWNER THIS IS SET TO ALWAYS DUMMY USER
         title: shortTitle,
         messages: [],
       });
@@ -181,17 +186,20 @@ USER: ${message}
 // -----------------------------------------------------------------------------
 app.get("/api/conversations", async (req, res) => {
   try {
-    const convos = await Conversation.find({}, "title updatedAt")
+    const convos = await Conversation.find(
+      { userId: DEMO_USER_ID },
+      "title updatedAt"
+    )
       .sort({ updatedAt: -1 })
       .lean();
 
-    const result = convos.map((c) => ({
-      id: c._id.toString(),
-      title: c.title || "Untitled chat",
-      updatedAt: c.updatedAt,
-    }));
-
-    res.json(result);
+    res.json(
+      convos.map((c) => ({
+        id: c._id.toString(),
+        title: c.title,
+        updatedAt: c.updatedAt,
+      }))
+    );
   } catch (err) {
     console.error("Error in GET /api/conversations:", err);
     res.status(500).json({ error: "Failed to fetch conversations" });
@@ -203,8 +211,10 @@ app.get("/api/conversations", async (req, res) => {
 // -----------------------------------------------------------------------------
 app.get("/api/conversations/:id", async (req, res) => {
   try {
-    const { id } = req.params;
-    const convo = await Conversation.findById(id);
+    const convo = await Conversation.findOne({
+      _id: req.params.id,
+      userId: DEMO_USER_ID,
+    });
 
     if (!convo) {
       return res.status(404).json({ error: "Conversation not found" });
@@ -226,16 +236,18 @@ app.get("/api/conversations/:id", async (req, res) => {
 // -----------------------------------------------------------------------------
 app.delete("/api/conversations/:id", async (req, res) => {
   try {
-    const { id } = req.params;
-    const deleted = await Conversation.findByIdAndDelete(id);
+    const deleted = await Conversation.findOneAndDelete({
+      _id: req.params.id,
+      userId: DEMO_USER_ID,
+    });
 
     if (!deleted) {
       return res.status(404).json({ error: "Conversation not found" });
     }
 
-    return res.status(204).send(); // No content
+    res.status(204).send();
   } catch (err) {
-    console.error("Error in DELETE /api/conversations/:id:", err);
+    console.error("Error deleting conversation:", err);
     res.status(500).json({ error: "Failed to delete conversation" });
   }
 });
@@ -248,16 +260,24 @@ if (!process.env.MONGO_URL) {
   process.exit(1);
 }
 
-mongoose
-  .connect(process.env.MONGO_URL)
-  .then(() => {
-    console.log("Connected to MongoDB");
+mongoose.connect(process.env.MONGO_URL).then(async () => {
+  console.log("Connected to MongoDB");
 
-    app.listen(PORT, () => {
-      console.log(`Server listening on http://localhost:${PORT}`);
+  // Create a dummy account if not existing
+  let demoUser = await User.findOne({ email: "demo@chat.com" });
+
+  if (!demoUser) {
+    demoUser = await User.create({
+      email: "demo@chat.com",
+      password: "password", // SUPER SIMPLE
+      name: "Demo User",
     });
-  })
-  .catch((err) => {
-    console.error("Failed to connect to MongoDB:", err.message);
-    process.exit(1);
+    console.log("Created demo user:", demoUser._id.toString());
+  }
+
+  app.locals.DEMO_USER_ID = demoUser._id.toString();
+
+  app.listen(PORT, () => {
+    console.log(`Server listening on http://localhost:${PORT}`);
   });
+});

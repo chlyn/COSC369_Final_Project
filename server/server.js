@@ -9,22 +9,13 @@ import { fileURLToPath } from "url";
 import mongoose from "mongoose";
 import Conversation from "./models/conversation.model.js";
 import User from "./models/user.model.js";
+import Course from "./models/course.model.js";
+import StudentSchedule from "./models/studentSchedule.model.js";
 
 const DEMO_USER_ID = "demo-student-001";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-// Load fake data
-const catalogPath = path.join(__dirname, "json", "course_catalog.json");
-const studentPath = path.join(__dirname, "json", "student_schedule.json");
-
-const classesCatalog = JSON.parse(fs.readFileSync(catalogPath, "utf-8"));
-const studentSchedule = JSON.parse(fs.readFileSync(studentPath, "utf-8"));
-
-const studentClasses = classesCatalog.filter((c) =>
-  studentSchedule.classes.includes(c.id)
-);
 
 const app = express();
 app.use(cors());
@@ -64,7 +55,9 @@ app.post("/api/chat", async (req, res) => {
           _id: conversationId,
           userId: DEMO_USER_ID,
         });
-      } catch {}
+      } catch {
+        // ignore invalid id
+      }
     }
 
     if (!convo) {
@@ -82,6 +75,22 @@ app.post("/api/chat", async (req, res) => {
 
     // Add the current user message to the conversation
     convo.messages.push({ role: "user", content: message });
+
+    // Load all available courses from Mongo
+    const classesCatalog = await Course.find({}).lean();
+
+    // Load this student's schedule from Mongo
+    const currentSchedule = await StudentSchedule.findOne({
+      userId: DEMO_USER_ID,
+      semester: "Fall 2025", // TODO: make this dynamic
+    }).lean();
+
+    // Build student's enrolled classes as full course objects
+    let studentClasses = [];
+    if (currentSchedule && currentSchedule.classes?.length) {
+      const enrolledIds = currentSchedule.classes;
+      studentClasses = classesCatalog.filter((c) => enrolledIds.includes(c.id));
+    }
 
     // ------------------------------------------------------------
     // 2) Build the Gemini prompt
@@ -260,24 +269,57 @@ if (!process.env.MONGO_URL) {
   process.exit(1);
 }
 
-mongoose.connect(process.env.MONGO_URL).then(async () => {
-  console.log("Connected to MongoDB");
+// Connect to MongoDB and seed JSON to Mongo
+mongoose
+  .connect(process.env.MONGO_URL)
+  .then(async () => {
+    console.log("Connected to MongoDB");
 
-  // Create a dummy account if not existing
-  let demoUser = await User.findOne({ email: "demo@chat.com" });
+    // Create a dummy account if not existing
+    let demoUser = await User.findOne({ email: "demo@chat.com" });
 
-  if (!demoUser) {
-    demoUser = await User.create({
-      email: "demo@chat.com",
-      password: "password", // SUPER SIMPLE
-      name: "Demo User",
+    if (!demoUser) {
+      demoUser = await User.create({
+        email: "demo@chat.com",
+        password: "password",
+        name: "Demo User",
+      });
+      console.log("Created demo user:", demoUser._id.toString());
+    }
+
+    // Seed catalog and student schedule from JSON (only if needed)
+    const catalogPath = path.join(__dirname, "json", "course_catalog.json");
+    const studentPath = path.join(__dirname, "json", "student_schedule.json");
+
+    const existingCourseCount = await Course.countDocuments();
+    if (existingCourseCount === 0) {
+      const catalogData = JSON.parse(fs.readFileSync(catalogPath, "utf-8"));
+      await Course.insertMany(catalogData);
+      console.log(`Seeded ${catalogData.length} courses into MongoDB`);
+    }
+
+    const studentJson = JSON.parse(fs.readFileSync(studentPath, "utf-8"));
+
+    let scheduleDoc = await StudentSchedule.findOne({
+      userId: DEMO_USER_ID,
+      semester: studentJson.semester,
     });
-    console.log("Created demo user:", demoUser._id.toString());
-  }
 
-  app.locals.DEMO_USER_ID = demoUser._id.toString();
+    if (!scheduleDoc) {
+      scheduleDoc = await StudentSchedule.create({
+        userId: DEMO_USER_ID,
+        semester: studentJson.semester,
+        classes: studentJson.classes,
+      });
+      console.log(`Created schedule for demo user ${DEMO_USER_ID}`);
+    }
 
-  app.listen(PORT, () => {
-    console.log(`Server listening on http://localhost:${PORT}`);
+    // Now start server
+    app.listen(PORT, () => {
+      console.log(`Server listening on http://localhost:${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error("Failed to connect to MongoDB", err);
+    process.exit(1);
   });
-});

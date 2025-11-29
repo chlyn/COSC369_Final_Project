@@ -221,6 +221,25 @@ app.get("/api/conversations/:id", async (req, res) => {
   }
 });
 
+// -----------------------------------------------------------------------------
+// Delete a conversation
+// -----------------------------------------------------------------------------
+app.delete("/api/conversations/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deleted = await Conversation.findByIdAndDelete(id);
+
+    if (!deleted) {
+      return res.status(404).json({ error: "Conversation not found" });
+    }
+
+    return res.status(204).send(); // No content
+  } catch (err) {
+    console.error("Error in DELETE /api/conversations/:id:", err);
+    res.status(500).json({ error: "Failed to delete conversation" });
+  }
+});
+
 const PORT = process.env.PORT || 3001;
 
 // Make sure MONGO_URL exists

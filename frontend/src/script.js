@@ -234,6 +234,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   generateCalendar();
   showPage("page-welcome", "Welcome");
+
+  // Load chat history into sidebar
+  loadChatHistory();
 });
 
 // ------------------------------------------------------------------------------
@@ -347,6 +350,9 @@ async function sendMessage(text) {
     console.error("Chat error:", err);
     thinkingBubble.textContent = "Error: I couldn't reach the AI server.";
   }
+
+  // Refresh sidebar chat list
+  loadChatHistory();
 }
 
 function addMessage(text, sender = "user") {
@@ -409,4 +415,140 @@ function generateCalendar() {
     .join("");
 
   container.innerHTML = headerHTML + rowsHTML;
+}
+
+// ------------------------------------------------------------------------------
+// CHAT HISTORY: load list + load a specific conversation
+// ------------------------------------------------------------------------------
+
+async function loadChatHistory() {
+  const list = document.querySelector(".chat-history-list");
+  if (!list) return;
+
+  try {
+    const res = await fetch("http://localhost:3001/api/conversations");
+    if (!res.ok) throw new Error("Failed to fetch conversations");
+
+    const conversations = await res.json();
+
+    // Clear previous items
+    list.innerHTML = "";
+
+    if (!conversations.length) {
+      const empty = document.createElement("div");
+      empty.textContent = "No conversations yet";
+      empty.classList.add("empty-history");
+      list.appendChild(empty);
+      return;
+    }
+
+    conversations.forEach((c) => {
+      // Entire clickable row (handles hover bg)
+      const row = document.createElement("div");
+      row.classList.add("history-row");
+      row.dataset.id = c.id;
+
+      // Label inside row
+      const label = document.createElement("button");
+      label.type = "button";
+      label.classList.add("history-label");
+      label.textContent = c.title || "Untitled chat";
+
+      // Delete button
+      const delBtn = document.createElement("button");
+      delBtn.type = "button";
+      delBtn.classList.add("delete-history-btn");
+      delBtn.innerHTML = `<span class="material-icons">delete</span>`;
+      delBtn.title = "Delete conversation";
+
+      // Click anywhere on the row (except trash) to load convo
+      row.addEventListener("click", () => {
+        document
+          .querySelectorAll(".history-row")
+          .forEach((el) => el.classList.remove("active"));
+        row.classList.add("active");
+
+        loadConversation(c.id, c.title);
+      });
+
+      // Clicking trash only deletes, no load
+      delBtn.addEventListener("click", async (e) => {
+        e.stopPropagation(); // don't trigger row click
+
+        const confirmDelete = window.confirm(
+          "Delete this conversation? This action cannot be undone."
+        );
+        if (!confirmDelete) return;
+
+        try {
+          const res = await fetch(
+            `http://localhost:3001/api/conversations/${c.id}`,
+            { method: "DELETE" }
+          );
+          if (!res.ok && res.status !== 204) {
+            throw new Error("Failed to delete conversation");
+          }
+
+          if (CURRENT_CONVERSATION_ID === c.id) {
+            CURRENT_CONVERSATION_ID = null;
+            CHAT_HISTORY.length = 0;
+            const container = document.getElementById("chat-messages");
+            if (container) container.innerHTML = "";
+          }
+
+          loadChatHistory();
+        } catch (err) {
+          console.error("delete conversation error:", err);
+          alert("Sorry, something went wrong deleting this chat.");
+        }
+      });
+
+      row.appendChild(label);
+      row.appendChild(delBtn);
+      list.appendChild(row);
+    });
+  } catch (err) {
+    console.error("loadChatHistory error:", err);
+  }
+}
+
+async function loadConversation(conversationId, title) {
+  try {
+    const res = await fetch(
+      `http://localhost:3001/api/conversations/${conversationId}`
+    );
+    if (!res.ok) throw new Error("Failed to fetch conversation");
+
+    const convo = await res.json();
+
+    // Set the current conversation id
+    CURRENT_CONVERSATION_ID = convo.id;
+
+    // Clear in-memory history and UI
+    CHAT_HISTORY.length = 0;
+
+    const container = document.getElementById("chat-messages");
+    if (container) container.innerHTML = "";
+
+    // Make sure we are on the Chat page
+    if (window.showAppPage) {
+      window.showAppPage("page-chat", title || "Chat");
+
+      // Update nav active state
+      const navItems = document.querySelectorAll(".nav-item[data-page]");
+      navItems.forEach((item) => item.classList.remove("active"));
+      const chatNav = document.querySelector(
+        '.nav-item[data-page="page-chat"]'
+      );
+      if (chatNav) chatNav.classList.add("active");
+    }
+
+    // Rebuild UI + CHAT_HISTORY from stored messages
+    (convo.messages || []).forEach((m) => {
+      const sender = m.role === "assistant" ? "bot" : "user";
+      addMessage(m.content, sender);
+    });
+  } catch (err) {
+    console.error("loadConversation error:", err);
+  }
 }

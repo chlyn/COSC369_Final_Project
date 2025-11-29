@@ -652,7 +652,40 @@ async function loadScheduleCourses() {
 
     container.innerHTML = cardsHTML;
 
-    // (Optional) Wire up the X buttons later to call a /api/schedule/drop endpoint
+    // Wire up the X buttons after rendering the cards
+    const removeButtons = container.querySelectorAll(".course-remove-btn");
+    removeButtons.forEach((btn) => {
+      btn.addEventListener("click", async (e) => {
+        e.stopPropagation();
+        const courseId = btn.dataset.courseId;
+        if (!courseId) return;
+
+        const confirmDrop = window.confirm(
+          `Remove ${courseId} from your schedule?`
+        );
+        if (!confirmDrop) return;
+
+        try {
+          const res = await fetch("http://localhost:3001/api/schedule/drop", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ courseId }),
+          });
+
+          if (!res.ok) {
+            console.error("Drop failed", await res.text());
+            alert("Sorry, something went wrong dropping this course.");
+            return;
+          }
+
+          // Reload the schedule list
+          loadScheduleCourses();
+        } catch (err) {
+          console.error("dropCourse error:", err);
+          alert("Sorry, something went wrong dropping this course.");
+        }
+      });
+    });
   } catch (err) {
     console.error("loadScheduleCourses error:", err);
     container.innerHTML =

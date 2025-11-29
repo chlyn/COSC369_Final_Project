@@ -291,6 +291,60 @@ app.get("/api/schedule", async (req, res) => {
   }
 });
 
+// -----------------------------------------------------------------------------
+// Add a course to the student's schedule
+// -----------------------------------------------------------------------------
+app.post("/api/schedule/add", async (req, res) => {
+  try {
+    const { courseId, semester = "Fall 2025" } = req.body;
+
+    if (!courseId) {
+      return res.status(400).json({ error: "courseId is required" });
+    }
+
+    // Make sure this course exists in the catalog
+    const course = await Course.findOne({ id: courseId });
+    if (!course) {
+      return res.status(404).json({ error: "Course not found" });
+    }
+
+    const schedule = await StudentSchedule.findOneAndUpdate(
+      { userId: DEMO_USER_ID, semester },
+      { $addToSet: { classes: courseId } }, // avoid duplicates
+      { new: true, upsert: true }
+    );
+
+    res.json(schedule);
+  } catch (err) {
+    console.error("Error in POST /api/schedule/add:", err);
+    res.status(500).json({ error: "Failed to add course" });
+  }
+});
+
+// -----------------------------------------------------------------------------
+// Drop a course from the student's schedule
+// -----------------------------------------------------------------------------
+app.post("/api/schedule/drop", async (req, res) => {
+  try {
+    const { courseId, semester = "Fall 2025" } = req.body;
+
+    if (!courseId) {
+      return res.status(400).json({ error: "courseId is required" });
+    }
+
+    const schedule = await StudentSchedule.findOneAndUpdate(
+      { userId: DEMO_USER_ID, semester },
+      { $pull: { classes: courseId } },
+      { new: true }
+    );
+
+    res.json(schedule);
+  } catch (err) {
+    console.error("Error in POST /api/schedule/drop:", err);
+    res.status(500).json({ error: "Failed to drop course" });
+  }
+});
+
 // add all api endpoints above this line
 const PORT = process.env.PORT || 3001;
 

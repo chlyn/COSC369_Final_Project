@@ -234,6 +234,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   generateCalendar();
   showPage("page-welcome", "Welcome");
+
+  // Load chat history into sidebar
+  loadChatHistory();
 });
 
 // ------------------------------------------------------------------------------
@@ -347,6 +350,9 @@ async function sendMessage(text) {
     console.error("Chat error:", err);
     thinkingBubble.textContent = "Error: I couldn't reach the AI server.";
   }
+
+  // Refresh sidebar chat list
+  loadChatHistory();
 }
 
 function addMessage(text, sender = "user") {
@@ -409,4 +415,94 @@ function generateCalendar() {
     .join("");
 
   container.innerHTML = headerHTML + rowsHTML;
+}
+
+// ------------------------------------------------------------------------------
+// CHAT HISTORY: load list + load a specific conversation
+// ------------------------------------------------------------------------------
+
+async function loadChatHistory() {
+  const list = document.querySelector(".chat-history-list");
+  if (!list) return;
+
+  try {
+    const res = await fetch("http://localhost:3001/api/conversations");
+    if (!res.ok) throw new Error("Failed to fetch conversations");
+
+    const conversations = await res.json();
+
+    // Clear previous items
+    list.innerHTML = "";
+
+    if (!conversations.length) {
+      const empty = document.createElement("div");
+      empty.textContent = "No conversations yet";
+      empty.classList.add("empty-history");
+      list.appendChild(empty);
+      return;
+    }
+
+    conversations.forEach((c) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.classList.add("nav-item", "history-item");
+      btn.textContent = c.title || "Untitled chat";
+      btn.dataset.id = c.id;
+
+      btn.addEventListener("click", () => {
+        // highlight selected history item
+        document
+          .querySelectorAll(".history-item")
+          .forEach((el) => el.classList.remove("active"));
+        btn.classList.add("active");
+
+        loadConversation(c.id, c.title);
+      });
+
+      list.appendChild(btn);
+    });
+  } catch (err) {
+    console.error("loadChatHistory error:", err);
+  }
+}
+
+async function loadConversation(conversationId, title) {
+  try {
+    const res = await fetch(
+      `http://localhost:3001/api/conversations/${conversationId}`
+    );
+    if (!res.ok) throw new Error("Failed to fetch conversation");
+
+    const convo = await res.json();
+
+    // Set the current conversation id
+    CURRENT_CONVERSATION_ID = convo.id;
+
+    // Clear in-memory history and UI
+    CHAT_HISTORY.length = 0;
+
+    const container = document.getElementById("chat-messages");
+    if (container) container.innerHTML = "";
+
+    // Make sure we are on the Chat page
+    if (window.showAppPage) {
+      window.showAppPage("page-chat", title || "Chat");
+
+      // Update nav active state
+      const navItems = document.querySelectorAll(".nav-item[data-page]");
+      navItems.forEach((item) => item.classList.remove("active"));
+      const chatNav = document.querySelector(
+        '.nav-item[data-page="page-chat"]'
+      );
+      if (chatNav) chatNav.classList.add("active");
+    }
+
+    // Rebuild UI + CHAT_HISTORY from stored messages
+    (convo.messages || []).forEach((m) => {
+      const sender = m.role === "assistant" ? "bot" : "user";
+      addMessage(m.content, sender);
+    });
+  } catch (err) {
+    console.error("loadConversation error:", err);
+  }
 }

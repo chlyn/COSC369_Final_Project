@@ -8,6 +8,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const topbarTitle = document.getElementById("topbar-title");
   const pages = document.querySelectorAll(".page");
   const navItems = document.querySelectorAll(".nav-item[data-page]");
+  const addClassBtn = document.querySelector(".add-btn");
+  const addCourseModal = document.getElementById("add-course-modal");
+  const addCourseForm = document.getElementById("add-course-form");
+  const addCourseInput = document.getElementById("modal-course-id");
+  const addCourseClose = document.getElementById("add-course-close");
+  const addCourseCancel = document.getElementById("add-course-cancel");
 
   function showPage(pageId, title) {
     // Hiding all pages by default
@@ -111,6 +117,83 @@ document.addEventListener("DOMContentLoaded", () => {
       profileMenu.classList.remove("open");
     });
   });
+
+  // ------------------------------------------------------------------------------
+  // ADD CLASS MODAL
+  function openAddCourseModal() {
+    if (!addCourseModal) return;
+    addCourseModal.classList.remove("modal-hidden");
+
+    if (addCourseInput) {
+      setTimeout(() => addCourseInput.focus(), 100);
+    }
+  }
+
+  function closeAddCourseModal() {
+    if (!addCourseModal) return;
+    addCourseModal.classList.add("modal-hidden");
+    if (addCourseForm) addCourseForm.reset();
+  }
+
+  if (addClassBtn) {
+    addClassBtn.addEventListener("click", () => {
+      openAddCourseModal();
+    });
+  }
+
+  if (addCourseClose) {
+    addCourseClose.addEventListener("click", closeAddCourseModal);
+  }
+
+  if (addCourseCancel) {
+    addCourseCancel.addEventListener("click", closeAddCourseModal);
+  }
+
+  // Close when clicking backdrop (optional but nice)
+  if (addCourseModal) {
+    addCourseModal.addEventListener("click", (e) => {
+      // only close if they clicked *outside* the dialog
+      if (
+        e.target === addCourseModal ||
+        e.target.classList.contains("modal-backdrop")
+      ) {
+        closeAddCourseModal();
+      }
+    });
+  }
+
+  // Handle the actual "Add Course" submit
+  if (addCourseForm && addCourseInput) {
+    addCourseForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const courseId = addCourseInput.value.trim();
+      if (!courseId) return;
+
+      try {
+        const res = await fetch("http://localhost:3001/api/schedule/add", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ courseId }),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          alert(data.error || "Failed to add course.");
+          return;
+        }
+
+        closeAddCourseModal();
+        // Refresh the visible course cards
+        if (typeof loadScheduleCourses === "function") {
+          loadScheduleCourses();
+        }
+      } catch (err) {
+        console.error("addCourse error:", err);
+        alert("Sorry, something went wrong adding this course.");
+      }
+    });
+  }
 
   // ------------------------------------------------------------------------------
   // SEMESTER MENU

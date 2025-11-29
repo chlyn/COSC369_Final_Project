@@ -187,6 +187,53 @@
       </div>
     </div>
 
+    <!-- Add Course Modal -->
+    <div id="add-course-modal" class="modal-hidden">
+      <div class="modal-backdrop">
+        <div
+          class="modal-dialog"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="add-course-title"
+        >
+          <div class="modal-header">
+            <h2 id="add-course-title">Add Course</h2>
+            <button type="button" class="modal-close-btn" id="add-course-close">
+              <span class="material-icons">close</span>
+            </button>
+          </div>
+
+          <p class="modal-subtitle">
+            Enter the course ID you want to add to your schedule.
+          </p>
+
+          <form id="add-course-form">
+            <label for="modal-course-id" class="modal-label">Course ID</label>
+            <input
+              id="modal-course-id"
+              type="text"
+              placeholder="e.g. ENGR110"
+              autocomplete="off"
+              required
+            />
+
+            <div class="modal-actions">
+              <button
+                type="button"
+                class="modal-btn modal-btn-secondary"
+                id="add-course-cancel"
+              >
+                Cancel
+              </button>
+              <button type="submit" class="modal-btn modal-btn-primary">
+                Add Course
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
     <script src="src/script.js"></script>
   </body>
 </html>

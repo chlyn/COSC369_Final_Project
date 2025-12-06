@@ -127,4 +127,160 @@ body {
     align-items: stretch; 
     text-align: left; 
     overflow: hidden;
+}/* ===== PROFILE PAGE LAYOUT ===== */
+
+#page-profile .profile-layout {
+  display: flex;
+  gap: 24px;
+  padding: 24px;
+}
+
+#page-profile .profile-sidebar {
+  width: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+#page-profile .profile-page-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+#page-profile .profile-tab {
+  width: 100%;
+  text-align: left;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+#page-profile .profile-tab:hover {
+  background: #f0f0f0;
+}
+
+#page-profile .profile-tab.active {
+  background: #e6e6ff;
+  font-weight: 600;
+}
+
+#page-profile .profile-main {
+  flex: 1;
+}
+
+/* cards */
+#page-profile .profile-card {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e0e0e0;
+  padding: 16px 20px;
+  margin-bottom: 16px;
+}
+
+#page-profile .profile-card-main {
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+
+#page-profile .profile-section-title {
+  font-weight: 600;
+  font-size: 1rem;
+  margin-bottom: 12px;
+}
+
+/* header row */
+#page-profile .profile-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+#page-profile .profile-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: #f3f3f3;
+  border: 3px solid #cfcfcf;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: #555;
+}
+
+#page-profile .profile-name {
+  font-size: 1.1rem;
+  margin-bottom: 4px;
+}
+
+#page-profile .profile-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #777;
+  margin-bottom: 2px;
+}
+
+#page-profile .profile-value {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #333;
+}
+
+/* grids & classes */
+#page-profile .profile-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+#page-profile .profile-classes {
+  margin-top: 16px;
+}
+
+#page-profile .profile-pill-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+#page-profile .profile-pill {
+  padding: 3px 12px;
+  border-radius: 999px;
+  background: #f0f0f0;
+  font-size: 0.8rem;
+}
+
+/* show one person at a time */
+#page-profile .profile-person {
+  display: none;
+}
+
+#page-profile .profile-person.active {
+  display: block;
+}
+
+/* responsive */
+@media (max-width: 768px) {
+  #page-profile .profile-layout {
+    flex-direction: column;
+    padding: 16px;
+  }
+
+  #page-profile .profile-sidebar {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  #page-profile .profile-tab {
+    flex: 1 1 45%;
+  }
 }

@@ -54,7 +54,7 @@
             <label class="form-label">
               Password
               <div class="password-field">
-                <input type="password" id="password-input" required/>
+                <input type="password" class="password-input" id="signup-password" required/>
                 <button type="button" class="password-toggle" aria-label="Show password" aria-pressed="false">
                   <span class="material-icons">visibility_off</span>
                 </button>
@@ -67,7 +67,42 @@
 
             <p class="auth-helper">
               Already have an account?
-              <button type="button" class="auth-inline-link" data-switch="login"> Log in</button>
+              <button type="button" class="auth-inline-link" data-switch="login">Log in</button>
+            </p>
+
+          </form>
+
+        </section>
+
+        <!-- LOGIN -->
+        <section class="auth-section active" id="auth-login">
+
+          <span class="auth-title" id="auth-title">Welcome back</span>
+
+          <form id="login-form">
+
+            <label class="form-label">
+              Email
+              <input type="email" required />
+            </label>
+
+            <label class="form-label">
+              Password
+              <div class="password-field">
+                <input type="password" class="password-input" id="login-password" required/>
+                <button type="button" class="password-toggle" aria-label="Show password" aria-pressed="false">
+                  <span class="material-icons">visibility_off</span>
+                </button>
+              </div>
+            </label>
+
+            <button type="submit" class="auth-btn">
+              Log In
+            </button>
+
+            <p class="auth-helper">
+              Don't have an account?
+              <button type="button" class="auth-inline-link" data-switch="signup">Sign Up</button>
             </p>
 
           </form>

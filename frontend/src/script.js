@@ -30,9 +30,9 @@ import { setupAuth } from "./pages/authentication.js";
 
 document.addEventListener("DOMContentLoaded", () => {
 
-  window.showAppPage = showPage;
-
   setupAuth();
+
+  window.showAppPage = showPage;
 
   setupNavigation({
     onNewChat: () => {

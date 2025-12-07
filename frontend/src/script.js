@@ -19,7 +19,7 @@ JS TABLE OF CONTENTS:
 import { showPage, setupNavigation, setupUserMenu } from "./ui.js";
 import { setupWelcomePage } from "./pages/welcome.js";
 import { loadChatHistory } from "./pages/chatHistory.js";
-import { sendMessage, startVoiceRecognition, addMessage, getChatHistory, getCurrentConversationId, setCurrentConversationId, setupChatInputHandlers, resetChatState } from "./pages/chat.js";
+import { sendMessage, startVoiceRecognition, addMessage, getChatHistory, getCurrentConversationId, setCurrentConversationId, setupChatInputHandlers, resetChatState, setupNewChatView } from "./pages/chat.js";
 import { SchedulePage as setupSchedulePage, loadScheduleCourses } from "./pages/schedule.js";
 import { setupAuth } from "./pages/authentication.js";
 
@@ -39,10 +39,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       resetChatState();
 
-      const container = document.getElementById("chat-messages");
-      if (container) {
-        container.innerHTML = "";
-      }
+      setupNewChatView();
     },
     onSchedulePage: () => {
       loadScheduleCourses();

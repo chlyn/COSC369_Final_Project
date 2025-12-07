@@ -194,3 +194,63 @@ export function resetChatState() {
     CURRENT_CONVERSATION_ID = null;
     CHAT_HISTORY.length = 0;
 }
+
+
+
+/* ------------------------------------------------------------------------------------------
+/* SUGGESTED PROMPTS */
+
+// Suggested tasks reused for "New Chat" in the chat page
+const suggestedTasks = [
+    { text: "Show my weekly schedule"},
+    { text: "Add a new class"},
+    { text: "Drop a class"},
+    { text: "Recommend classes"},
+];
+
+function clearChatSuggestedPrompts() {
+    const container = document.getElementById("chat-suggested-prompts");
+    if (container) {
+        container.innerHTML = "";
+    }
+}
+
+
+function renderChatSuggestedPrompts() {
+    const container = document.getElementById("chat-suggested-prompts");
+    if (!container) return;
+
+    container.innerHTML = "";
+
+    suggestedTasks.forEach((task) => {
+        const btn = document.createElement("button");
+        btn.classList.add("suggested-btn");
+
+        btn.textContent = task.text;
+
+        btn.addEventListener("click", () => {
+            // Remove prompts immediately
+            clearChatSuggestedPrompts();
+
+            // when a suggestion is clicked, send it as a message
+            sendMessage(task.text);
+        });
+
+        container.appendChild(btn);
+    });
+}
+
+// Called whenever we start a completely fresh "New Chat"
+export function setupNewChatView() {
+    const container = document.getElementById("chat-messages");
+    if (container) {
+        container.innerHTML = "";
+    }
+
+
+    // Bot greeting
+    addMessage("Hi! How can I help you?", "bot");
+
+    // Show suggested prompts under the greeting
+    renderChatSuggestedPrompts();
+}

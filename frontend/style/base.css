@@ -6,7 +6,7 @@ CSS TABLE OF CONTENTS:
 1. Base                 imports, design tokens, global stuff
 2. Layout               side bar, main content, top bar, 
 3. Components           chat input, mic & send buttons
-4. Pages                welcome, chat, schedule, profile, login, create account
+4. Pages                welcome, chat, schedule, profile, auth (login & create)
 
 
 ------------------------------------------------------------------------------------------ */
@@ -16,6 +16,7 @@ CSS TABLE OF CONTENTS:
 /* IMPORTING ALL CSS FILES */
 @import url("./layout.css");
 @import url("./components.css");
+@import url("./pages/authentication.css");
 @import url("./pages/welcome.css");
 @import url("./pages/chat.css");
 @import url("./pages/schedule.css");

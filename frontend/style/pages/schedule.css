@@ -292,19 +292,6 @@
   flex-shrink: 0;
 }
 
-/* Placeholders Examples */
-.course-color-1 {
-  background: var(--course-color-red);
-}
-
-.course-color-2 {
-  background: var(--course-color-blue);
-}
-
-.course-color-3 {
-  background: var(--course-color-green);
-}
-
 /* Course Content */
 .course-content {
   flex: 1;

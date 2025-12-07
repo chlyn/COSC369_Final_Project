@@ -21,6 +21,7 @@ import { setupWelcomePage } from "./pages/welcome.js";
 import { loadChatHistory } from "./pages/chatHistory.js";
 import { sendMessage, startVoiceRecognition, addMessage, getChatHistory, getCurrentConversationId, setCurrentConversationId, setupChatInputHandlers, resetChatState } from "./pages/chat.js";
 import { SchedulePage as setupSchedulePage, loadScheduleCourses } from "./pages/schedule.js";
+import { setupAuth } from "./pages/authentication.js";
 
 
 
@@ -31,38 +32,40 @@ document.addEventListener("DOMContentLoaded", () => {
 
   window.showAppPage = showPage;
 
-    setupNavigation({
-      onNewChat: () => {
+  setupAuth();
 
-        resetChatState();
+  setupNavigation({
+    onNewChat: () => {
 
-        const container = document.getElementById("chat-messages");
-        if (container) {
-          container.innerHTML = "";
-        }
-      },
-      onSchedulePage: () => {
-        loadScheduleCourses();
-      },
-    });
+      resetChatState();
 
-    setupUserMenu();
+      const container = document.getElementById("chat-messages");
+      if (container) {
+        container.innerHTML = "";
+      }
+    },
+    onSchedulePage: () => {
+      loadScheduleCourses();
+    },
+  });
 
-    setupSchedulePage();
+  setupUserMenu();
 
-    setupWelcomePage((text) => {
-      sendMessage(text);
-    });
+  setupSchedulePage();
 
-    setupChatInputHandlers();
+  setupWelcomePage((text) => {
+    sendMessage(text);
+  });
 
-    showPage("page-welcome", "Welcome");
+  setupChatInputHandlers();
 
-    loadChatHistory({
-      addMessage,
-      showPage,
-      getChatHistory,
-      getCurrentConversationId,
-      setCurrentConversationId,
-    });
+  showPage("page-welcome", "Welcome");
+
+  loadChatHistory({
+    addMessage,
+    showPage,
+    getChatHistory,
+    getCurrentConversationId,
+    setCurrentConversationId,
+  });
 });

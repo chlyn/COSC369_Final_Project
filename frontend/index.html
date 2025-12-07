@@ -17,8 +17,69 @@
 
   <body>
 
-    <!-- FULL CONTENT -->
-    <div class="content">
+    <div id="auth">
+      <div class="auth-container">
+
+        <div class="auth-logo">
+          <span class="material-icons">edit_calendar</span>
+          <h2>AI Powered Schedule</h2>
+        </div>
+
+        <!-- CREATE ACCOUNT -->
+        <section class="auth-section" id="auth-signup">
+
+          <span class="auth-title" id="auth-title">Create your account</span>
+
+          <form id="create-form">
+
+            <div class="name-field">
+
+              <label class="form-label">
+                First Name
+                <input type="text" required />
+              </label>
+
+              <label class="form-label">
+                Last Name
+                <input type="text" required />
+              </label>
+              
+            </div>
+
+            <label class="form-label">
+              Email
+              <input type="email" required />
+            </label>
+
+            <label class="form-label">
+              Password
+              <div class="password-field">
+                <input type="password" id="password-input" required/>
+                <button type="button" class="password-toggle" aria-label="Show password" aria-pressed="false">
+                  <span class="material-icons">visibility_off</span>
+                </button>
+              </div>
+            </label>
+
+            <button type="submit" class="auth-btn">
+              Create Account
+            </button>
+
+            <p class="auth-helper">
+              Already have an account?
+              <button type="button" class="auth-inline-link" data-switch="login"> Log in</button>
+            </p>
+
+          </form>
+
+        </section>
+
+      </div>
+    </div>
+
+
+    <!-- FULL APP CONTENT -->
+    <div class="content hidden" id="app-content">
 
       <!-- SIDEBAR -->
       <div class="sidebar" id="sidebar">

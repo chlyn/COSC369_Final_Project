@@ -354,7 +354,17 @@
                 <div class="profile-header">
                   <div class="profile-avatar" id="profile-avatar">??</div>
                   <div class="profile-text">
-                    <h3 class="profile-name" id="profile-name">Loading...</h3>
+                    <div class="profile-name-row">
+                      <h3 class="profile-name" id="profile-name">Loading...</h3>
+                      <button
+                        type="button"
+                        class="profile-edit-btn"
+                        data-edit="name"
+                        aria-label="Edit name"
+                      >
+                        <span class="material-icons">edit</span>
+                      </button>
+                    </div>
                     <div class="profile-label">Student ID</div>
                     <div class="profile-value" id="profile-student-id">N/A</div>
                   </div>
@@ -367,8 +377,18 @@
                 <div class="profile-grid">
                   <div>
                     <div class="profile-label">Email</div>
-                    <div class="profile-value" id="profile-email">
-                      Loading...
+                    <div class="profile-value-row">
+                      <div class="profile-value" id="profile-email">
+                        Loading...
+                      </div>
+                      <button
+                        type="button"
+                        class="profile-edit-btn"
+                        data-edit="email"
+                        aria-label="Edit email"
+                      >
+                        <span class="material-icons">edit</span>
+                      </button>
                     </div>
                   </div>
                   <div>
@@ -385,6 +405,14 @@
                       >
                         <span class="material-icons">visibility_off</span>
                       </button>
+                      <button
+                        type="button"
+                        class="profile-edit-btn"
+                        data-edit="password"
+                        aria-label="Edit password"
+                      >
+                        <span class="material-icons">edit</span>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -396,11 +424,31 @@
                 <div class="profile-grid">
                   <div>
                     <div class="profile-label">Major</div>
-                    <div class="profile-value" id="profile-major">N/A</div>
+                    <div class="profile-value-row">
+                      <div class="profile-value" id="profile-major">N/A</div>
+                      <button
+                        type="button"
+                        class="profile-edit-btn"
+                        data-edit="major"
+                        aria-label="Edit major"
+                      >
+                        <span class="material-icons">edit</span>
+                      </button>
+                    </div>
                   </div>
                   <div>
                     <div class="profile-label">Minor</div>
-                    <div class="profile-value" id="profile-minor">N/A</div>
+                    <div class="profile-value-row">
+                      <div class="profile-value" id="profile-minor">N/A</div>
+                      <button
+                        type="button"
+                        class="profile-edit-btn"
+                        data-edit="minor"
+                        aria-label="Edit minor"
+                      >
+                        <span class="material-icons">edit</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
 
@@ -414,6 +462,68 @@
             </main>
           </div>
         </section>
+
+        <!-- EDIT PROFILE MODAL -->
+        <div id="edit-profile-modal" class="modal-hidden">
+          <div class="modal-backdrop">
+            <div
+              class="modal-dialog"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="edit-profile-title"
+            >
+              <!-- MODAL HEADER -->
+              <div class="modal-header">
+                <h2 id="edit-profile-title">Edit Profile</h2>
+                <button
+                  type="button"
+                  class="modal-close-btn"
+                  id="edit-profile-close"
+                >
+                  <span class="material-icons">close</span>
+                </button>
+              </div>
+
+              <!-- MODAL CONTENT -->
+              <div class="modal-content">
+                <form id="edit-profile-form">
+                  <label
+                    for="edit-profile-input"
+                    class="modal-label"
+                    id="edit-profile-label"
+                  >
+                    Field
+                  </label>
+                  <input
+                    id="edit-profile-input"
+                    type="text"
+                    autocomplete="off"
+                    required
+                  />
+                </form>
+              </div>
+
+              <!-- FOOTER BUTTONS -->
+              <div class="modal-actions">
+                <button
+                  type="button"
+                  class="modal-btn modal-btn-secondary"
+                  id="edit-profile-cancel"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  class="modal-btn modal-btn-primary"
+                  id="edit-profile-submit"
+                  form="edit-profile-form"
+                >
+                  Save
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 

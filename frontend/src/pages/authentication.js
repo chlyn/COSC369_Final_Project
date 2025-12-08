@@ -161,7 +161,7 @@ export function setupAuth(onAuthComplete) {
   const switchButtons = authContainer.querySelectorAll("[data-switch]");
   switchButtons.forEach((btn) => {
     btn.addEventListener("click", () => {
-      const mode = btn.dataset.switch; // "signup" or "login"
+      const mode = btn.dataset.switch;
       if (!mode) return;
       showSection(mode);
       // Clear errors when switching forms

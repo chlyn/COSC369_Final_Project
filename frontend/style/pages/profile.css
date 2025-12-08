@@ -83,6 +83,59 @@
   margin-bottom: 4px;
 }
 
+/* Name row with edit button */
+#page-profile .profile-name-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+#page-profile .profile-name-row .profile-name {
+  margin-bottom: 0;
+}
+
+/* Value row with edit button */
+#page-profile .profile-value-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Edit button */
+#page-profile .profile-edit-btn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  border-radius: 4px;
+  transition: background 0.2s, opacity 0.2s;
+  opacity: 0;
+  flex-shrink: 0;
+}
+
+#page-profile .profile-edit-btn .material-icons {
+  font-size: 16px;
+  color: var(--text-secondary);
+}
+
+/* Show edit button on hover of parent container */
+#page-profile .profile-name-row:hover .profile-edit-btn,
+#page-profile .profile-value-row:hover .profile-edit-btn {
+  opacity: 1;
+}
+
+#page-profile .profile-edit-btn:hover {
+  background: color-mix(in srgb, var(--color-secondary) 15%, transparent);
+}
+
+#page-profile .profile-edit-btn:hover .material-icons {
+  color: var(--color-primary-default);
+}
+
 #page-profile .profile-label {
   font-size: 0.75rem;
   text-transform: uppercase;
@@ -101,7 +154,41 @@
 #page-profile .profile-password-container {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+}
+
+/* Show password edit button on hover */
+#page-profile .profile-password-container .profile-edit-btn {
+  opacity: 0;
+}
+
+#page-profile .profile-password-container:hover .profile-edit-btn {
+  opacity: 1;
+}
+
+#page-profile .profile-password-toggle {
+  border: none;
+  background: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 6px;
+  transition: background 0.2s, color 0.2s;
+}
+
+#page-profile .profile-password-toggle .material-icons {
+  font-size: 20px;
+  color: color-mix(in srgb, var(--text-secondary) 80%, transparent);
+}
+
+#page-profile .profile-password-toggle:hover {
+  background: color-mix(in srgb, var(--color-secondary) 10%, transparent);
+}
+
+#page-profile .profile-password-toggle:hover .material-icons {
+  color: var(--color-primary-hover);
 }
 
 #page-profile .profile-password-toggle {
@@ -173,4 +260,51 @@
   #page-profile .profile-tab {
     flex: 1 1 45%;
   }
+}
+
+/* Edit Profile Modal */
+#edit-profile-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+}
+
+/* Edit Profile Modal Styles */
+
+#edit-profile-modal .modal-label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: color-mix(in srgb, var(--text-secondary) 80%, transparent);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+#edit-profile-modal #edit-profile-input {
+  width: 100%;
+  height: 40px;
+  padding: 9px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--divider-default);
+  background: color-mix(in srgb, var(--color-accent-strong) 10%, #ffffff);
+  color: var(--text-primary);
+  font-size: 14px;
+  font-family: "Open Sans", sans-serif;
+  box-sizing: border-box;
+}
+
+#edit-profile-modal #edit-profile-input::placeholder {
+  color: color-mix(in srgb, var(--text-secondary) 60%, transparent);
+}
+
+#edit-profile-modal #edit-profile-input:focus {
+  outline: none;
+  border-color: var(--color-primary-default);
+  box-shadow: 0 0 0 3px
+    color-mix(in srgb, var(--color-primary-default) 10%, transparent);
+}
+
+#edit-profile-form {
+  margin-top: -15px;
 }

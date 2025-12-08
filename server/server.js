@@ -253,16 +253,11 @@ app.delete("/api/conversations/:id", async (req, res) => {
   res.status(204).send();
 });
 
-
-
 // -----------------------------------------------------------------------------
 // Helper: build a consistent schedule response with full course objects
 // -----------------------------------------------------------------------------
 function normalizeCourseId(id) {
-  return (id || "")
-    .toString()
-    .trim()
-    .toUpperCase()
+  return (id || "").toString().trim().toUpperCase();
 }
 
 async function buildScheduleResponse(userId, semester = "Fall 2025") {
@@ -293,7 +288,6 @@ async function buildScheduleResponse(userId, semester = "Fall 2025") {
     classes: enrolledCourses,
   };
 }
-
 
 // -----------------------------------------------------------------------------
 // Get the current student's schedule (with full course details)
@@ -373,7 +367,6 @@ app.post("/api/schedule/add", async (req, res) => {
   }
 });
 
-
 // -----------------------------------------------------------------------------
 // Drop a course from the student's schedule
 // -----------------------------------------------------------------------------
@@ -401,7 +394,6 @@ app.post("/api/schedule/drop", async (req, res) => {
     res.status(500).json({ error: "Failed to drop course" });
   }
 });
-
 
 // -----------------------------------------------------------------------------
 // AUTH: Sign up
@@ -493,6 +485,128 @@ app.post("/api/auth/login", async (req, res) => {
   } catch (err) {
     console.error("Error in /api/auth/login:", err);
     return res.status(500).json({ error: "Failed to log in." });
+  }
+});
+
+// -----------------------------------------------------------------------------
+// Update user profile (name, email)
+// -----------------------------------------------------------------------------
+app.patch("/api/user/profile", async (req, res) => {
+  try {
+    const { userId, name, email } = req.body;
+
+    if (!userId) {
+      return res.status(401).json({ error: "userId required" });
+    }
+
+    const updateData = {};
+    if (name) updateData.name = name;
+    if (email) {
+      // Check if email is already taken by another user
+      const existing = await User.findOne({
+        email: email.toLowerCase().trim(),
+        _id: { $ne: userId },
+      });
+
+      if (existing) {
+        return res.status(409).json({ error: "Email already in use" });
+      }
+
+      updateData.email = email.toLowerCase().trim();
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(userId, updateData, {
+      new: true,
+      select: "name email _id",
+    });
+
+    if (!updatedUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    return res.json({
+      user: {
+        id: updatedUser._id.toString(),
+        name: updatedUser.name,
+        email: updatedUser.email,
+      },
+    });
+  } catch (err) {
+    console.error("Error updating profile:", err);
+    return res.status(500).json({ error: "Failed to update profile" });
+  }
+});
+
+// -----------------------------------------------------------------------------
+// Update user academic info (major, minor, studentId)
+// -----------------------------------------------------------------------------
+app.patch("/api/user/academic", async (req, res) => {
+  try {
+    const { userId, major, minor, studentId } = req.body;
+
+    if (!userId) {
+      return res.status(401).json({ error: "userId required" });
+    }
+
+    const updateData = {};
+    if (major !== undefined) updateData.major = major;
+    if (minor !== undefined) updateData.minor = minor;
+    if (studentId !== undefined) updateData.studentId = studentId;
+
+    const updatedUser = await User.findByIdAndUpdate(userId, updateData, {
+      new: true,
+      select: "major minor studentId",
+    });
+
+    if (!updatedUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    return res.json({
+      major: updatedUser.major,
+      minor: updatedUser.minor,
+      studentId: updatedUser.studentId,
+    });
+  } catch (err) {
+    console.error("Error updating academic info:", err);
+    return res.status(500).json({ error: "Failed to update academic info" });
+  }
+});
+
+// -----------------------------------------------------------------------------
+// Update user password
+// -----------------------------------------------------------------------------
+app.patch("/api/user/password", async (req, res) => {
+  try {
+    const { userId, password } = req.body;
+
+    if (!userId) {
+      return res.status(401).json({ error: "userId required" });
+    }
+
+    if (!password || password.length < 6) {
+      return res
+        .status(400)
+        .json({ error: "Password must be at least 6 characters" });
+    }
+
+    // Hash the new password
+    const hashed = await bcrypt.hash(password, 10);
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { password: hashed },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    return res.json({ message: "Password updated successfully" });
+  } catch (err) {
+    console.error("Error updating password:", err);
+    return res.status(500).json({ error: "Failed to update password" });
   }
 });
 

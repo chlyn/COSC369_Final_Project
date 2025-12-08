@@ -68,7 +68,7 @@
     align-items: center;
     gap: 12px;
     background: transparent;
-    border: 1px solid var(--color-accent);
+    border: 1px solid var(--color-accent-default);
     border-radius: 999px;
     padding: 10px 14px;
     font-size: 13px;

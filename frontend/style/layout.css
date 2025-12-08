@@ -75,7 +75,7 @@
 }
 
 .nav-item.active {
-  background: color-mix(in srgb, var(--color-accent) 20%, transparent);
+  background: color-mix(in srgb, var(--color-accent-default) 20%, transparent);
   color: var(--text-accent);
   font-weight: 600;
 }
@@ -116,7 +116,7 @@
 }
 
 .history-row.active {
-  background: color-mix(in srgb, var(--color-accent) 20%, transparent);
+  background: color-mix(in srgb, var(--color-accent-default) 20%, transparent);
 }
 
 /* Text label inside row */

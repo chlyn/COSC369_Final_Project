@@ -115,8 +115,8 @@
 
 /* Button Interactions */
 #page-welcome .suggested-prompts .suggested-btn:hover {
-    border-color: var(--color-accent);
-    background: color-mix(in srgb, var(--color-accent) 2%, transparent);
+    border-color: var(--color-accent-default);
+    background: color-mix(in srgb, var(--color-accent-default) 2%, transparent);
     box-shadow: var(--shadow-glow);
 }
 

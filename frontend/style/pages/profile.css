@@ -281,7 +281,8 @@
   letter-spacing: 0.05em;
 }
 
-#edit-profile-modal #edit-profile-input {
+#edit-profile-modal #edit-profile-input,
+#edit-profile-modal #edit-profile-select {
   width: 100%;
   height: 40px;
   padding: 9px 10px;
@@ -294,17 +295,65 @@
   box-sizing: border-box;
 }
 
+#edit-profile-modal #edit-profile-select {
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%239D6EDE' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+}
+
 #edit-profile-modal #edit-profile-input::placeholder {
   color: color-mix(in srgb, var(--text-secondary) 60%, transparent);
 }
 
-#edit-profile-modal #edit-profile-input:focus {
+#edit-profile-modal #edit-profile-input:focus,
+#edit-profile-modal #edit-profile-select:focus {
   outline: none;
   border-color: var(--color-primary-default);
   box-shadow: 0 0 0 3px
     color-mix(in srgb, var(--color-primary-default) 10%, transparent);
 }
 
+#edit-profile-modal #edit-profile-select:hover {
+  border-color: var(--color-secondary);
+}
 #edit-profile-form {
   margin-top: -15px;
+}
+
+/* DROPDOWN SELECT ONLY */
+#edit-dropdown-select {
+  width: 100%;
+  height: 40px;
+  padding: 9px 10px;
+  padding-right: 36px;
+  border-radius: 8px;
+  border: 1px solid var(--divider-default);
+  background: color-mix(in srgb, var(--color-accent-strong) 10%, #ffffff);
+  color: var(--text-primary);
+  font-size: 14px;
+  font-family: "Open Sans", sans-serif;
+  box-sizing: border-box;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%239D6EDE' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+}
+
+#edit-dropdown-select:hover {
+  border-color: var(--color-secondary);
+}
+
+#edit-dropdown-select:focus {
+  outline: none;
+  border-color: var(--color-primary-default);
+  box-shadow: 0 0 0 3px
+    color-mix(in srgb, var(--color-primary-default) 10%, transparent);
 }

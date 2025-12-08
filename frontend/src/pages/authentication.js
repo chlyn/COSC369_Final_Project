@@ -3,6 +3,7 @@
 ------------------------------------------------------------------------------------------ */
 
 const STORAGE_KEY = "currentUser";
+const PASSWORD_SESSION_KEY = "userPasswordSession";
 
 export function getCurrentUser() {
   const raw = localStorage.getItem(STORAGE_KEY);
@@ -24,11 +25,24 @@ export function getCurrentUserId() {
   }
 }
 
+export function getCurrentUserPassword() {
+  // Get password from sessionStorage (only available during current session)
+  return sessionStorage.getItem(PASSWORD_SESSION_KEY);
+}
+
 function setCurrentUser(user) {
   if (!user) {
     localStorage.removeItem(STORAGE_KEY);
   } else {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+  }
+}
+
+function setSessionPassword(password) {
+  if (!password) {
+    sessionStorage.removeItem(PASSWORD_SESSION_KEY);
+  } else {
+    sessionStorage.setItem(PASSWORD_SESSION_KEY, password);
   }
 }
 
@@ -68,8 +82,9 @@ function applyUserToUI(user) {
 }
 
 export function logout() {
-  // Clear stored user
+  // Clear stored user and password
   setCurrentUser(null);
+  setSessionPassword(null);
 
   // Flip UI back to auth
   const authContainer = document.getElementById("auth");
@@ -86,6 +101,22 @@ export function logout() {
 /* ------------------------------------------------------------------------------------------
 /* AUTHENTICATION SETUP
 ------------------------------------------------------------------------------------------ */
+
+function showError(errorId, message) {
+  const errorEl = document.getElementById(errorId);
+  if (!errorEl) return;
+
+  const textEl = errorEl.querySelector(".auth-error-text");
+  if (textEl) textEl.textContent = message;
+
+  errorEl.classList.remove("hidden");
+}
+
+function hideError(errorId) {
+  const errorEl = document.getElementById(errorId);
+  if (!errorEl) return;
+  errorEl.classList.add("hidden");
+}
 
 export function setupAuth(onAuthComplete) {
   const authContainer = document.getElementById("auth");
@@ -133,6 +164,9 @@ export function setupAuth(onAuthComplete) {
       const mode = btn.dataset.switch; // "signup" or "login"
       if (!mode) return;
       showSection(mode);
+      // Clear errors when switching forms
+      hideError("login-error");
+      hideError("signup-error");
     });
   });
 
@@ -162,10 +196,14 @@ export function setupAuth(onAuthComplete) {
     });
   });
 
-  function completeAuth(user) {
+  function completeAuth(user, password) {
     if (user) {
       setCurrentUser(user);
       applyUserToUI(user);
+      // Store password in sessionStorage for this session only
+      if (password) {
+        setSessionPassword(password);
+      }
     }
     authContainer.style.display = "none";
     appContent.classList.remove("hidden");
@@ -200,6 +238,9 @@ export function setupAuth(onAuthComplete) {
 
       if (!firstName || !lastName || !email || !password) return;
 
+      // Clear any previous errors
+      hideError("signup-error");
+
       try {
         const res = await fetch("http://localhost:3001/api/auth/signup", {
           method: "POST",
@@ -209,14 +250,17 @@ export function setupAuth(onAuthComplete) {
 
         const data = await res.json();
         if (!res.ok) {
-          alert(data.error || "Failed to create account.");
+          showError("signup-error", data.error || "Failed to create account.");
           return;
         }
 
-        completeAuth(data.user);
+        completeAuth(data.user, password);
       } catch (err) {
         console.error("Signup error:", err);
-        alert("Sorry, something went wrong creating your account.");
+        showError(
+          "signup-error",
+          "Sorry, something went wrong creating your account."
+        );
       }
     });
   }
@@ -236,6 +280,9 @@ export function setupAuth(onAuthComplete) {
 
       if (!email || !password) return;
 
+      // Clear any previous errors
+      hideError("login-error");
+
       try {
         const res = await fetch("http://localhost:3001/api/auth/login", {
           method: "POST",
@@ -245,14 +292,14 @@ export function setupAuth(onAuthComplete) {
 
         const data = await res.json();
         if (!res.ok) {
-          alert(data.error || "Failed to log in.");
+          showError("login-error", data.error || "Invalid email or password.");
           return;
         }
 
-        completeAuth(data.user);
+        completeAuth(data.user, password);
       } catch (err) {
         console.error("Login error:", err);
-        alert("Sorry, something went wrong logging you in.");
+        showError("login-error", "Sorry, something went wrong logging you in.");
       }
     });
   }

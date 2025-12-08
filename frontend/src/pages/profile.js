@@ -1,8 +1,42 @@
-import { getCurrentUser } from "./authentication.js";
+import { getCurrentUser, getCurrentUserPassword } from "./authentication.js";
 
 export function setupProfilePage() {
   // Load profile info whenever profile page becomes visible
   document.addEventListener("show-profile-page", loadProfilePage);
+
+  // Setup password toggle
+  setupPasswordToggle();
+}
+
+function setupPasswordToggle() {
+  const toggleBtn = document.querySelector(
+    "#page-profile .profile-password-toggle"
+  );
+  const passwordValue = document.getElementById("profile-password");
+
+  if (!toggleBtn || !passwordValue) return;
+
+  toggleBtn.addEventListener("click", () => {
+    const icon = toggleBtn.querySelector(".material-icons");
+    const isCurrentlyHidden = icon.textContent === "visibility_off";
+
+    if (isCurrentlyHidden) {
+      // Show password from sessionStorage
+      const password = getCurrentUserPassword();
+      if (password) {
+        passwordValue.textContent = password;
+      } else {
+        passwordValue.textContent = "Not available";
+      }
+      toggleBtn.setAttribute("aria-pressed", "true");
+      icon.textContent = "visibility";
+    } else {
+      // Hide password
+      passwordValue.textContent = "********";
+      toggleBtn.setAttribute("aria-pressed", "false");
+      icon.textContent = "visibility_off";
+    }
+  });
 }
 
 function loadProfilePage() {
@@ -26,6 +60,12 @@ function loadProfilePage() {
   // Student ID (if your schema adds one later)
   document.getElementById("profile-student-id").textContent =
     user.studentId || "N/A";
+
+  // Password - keep hidden by default
+  const passwordValue = document.getElementById("profile-password");
+  if (passwordValue) {
+    passwordValue.textContent = "********";
+  }
 
   // Major, Minor
   document.getElementById("profile-major").textContent = "Computer Science";
@@ -90,7 +130,7 @@ async function loadUserSchedule(userId) {
         details.push(cls.days);
       }
       if (cls.start && cls.end) {
-        pill.title = `${cls.start}—${cls.end}`;
+        details.push(`${cls.start}—${cls.end}`);
       } else if (cls.time || cls.schedule) {
         details.push(cls.time || cls.schedule);
       }

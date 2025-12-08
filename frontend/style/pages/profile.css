@@ -97,6 +97,38 @@
   color: #333;
 }
 
+/* Password toggle container */
+#page-profile .profile-password-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#page-profile .profile-password-toggle {
+  border: none;
+  background: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 6px;
+  transition: background 0.2s, color 0.2s;
+}
+
+#page-profile .profile-password-toggle .material-icons {
+  font-size: 20px;
+  color: color-mix(in srgb, var(--text-secondary) 80%, transparent);
+}
+
+#page-profile .profile-password-toggle:hover {
+  background: color-mix(in srgb, var(--color-secondary) 10%, transparent);
+}
+
+#page-profile .profile-password-toggle:hover .material-icons {
+  color: var(--color-primary-hover);
+}
+
 /* grids & classes */
 #page-profile .profile-grid {
   display: grid;

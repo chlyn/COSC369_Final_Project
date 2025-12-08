@@ -60,7 +60,22 @@ CSS TABLE OF CONTENTS:
     --text-on-primary: #FFFFFF;
 
     /* Calendar course colors */
-    --course-color-red: #F28A9C;
+
+    /* 1 - Pastel*/
+    --course-color-red:    #F2B7D6; 
+    --course-color-orange: #F2C7B3; 
+    --course-color-yellow: #F2E1B5; 
+    --course-color-green:  #C8E4D6; 
+    --course-color-blue:   #C6D4F5; 
+    --course-color-pink:   #EAC3ED; 
+    --course-color-mint:   #C3E9E6; 
+    --course-color-gray:   #E0DEEE; 
+    --course-color-brown:  #E3CCE3; 
+    --course-color-teal:   #BEDBEA; 
+
+
+    /* 2 - OG */
+    /* --course-color-red: #F28A9C;
     --course-color-orange: #F5A86A;
     --course-color-yellow: #F7D774;
     --course-color-green: #88D4A3;
@@ -69,10 +84,23 @@ CSS TABLE OF CONTENTS:
     --course-color-mint: #7ADFD6;
     --course-color-gray: #BFC6D1;
     --course-color-brown: #C99F80;
-    --course-color-teal: #6CC4C8;
+    --course-color-teal: #6CC4C8; */
+
+    /* 3 - Purple*/
+    /* --course-color-red:   #EEC3E6;
+    --course-color-orange: #E7C8F0;
+    --course-color-yellow: #E0D4F6;
+    --course-color-green:  #C9D7F2;
+    --course-color-blue:   #BFCBEE;
+    --course-color-pink:   #E5BEEF;
+    --course-color-mint:   #C6E0EB;
+    --course-color-gray:   #DDD9F2;
+    --course-color-brown:  #D8C6EA;
+    --course-color-teal:   #C2D3F0; */
+
 
     /* Modal */
-    --modal-background: color-mix(in srgb, #000000 5%, var(--color-primary-default) 5%);
+    --modal-background: color-mix(in srgb, #000000 5%, var(--color-primary-default) 2%);
     --modal-border: #D4BFF3;
     
     /* Shadows */

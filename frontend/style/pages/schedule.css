@@ -221,9 +221,56 @@
   border-right: none;
 }
 
-.slot-cell:hover {
-  background: color-mix(in srgb, var(--color-accent-default) 10%, #ffffff);
-  cursor: pointer;
+
+
+/* ------------------------------------------------------------------------------------------ */
+/* CALENDAR COURSE BLOCKS */
+
+.calendar-course {
+  position: absolute;
+  left: 3px;
+  right: 3px;
+  border-radius: 8px;
+  padding: 3px 5px;
+  font-size: 10px;
+  line-height: 1.2;
+  color: var(--text-primary);
+  box-shadow: var(--shadow-xs);
+  overflow: hidden;
+}
+
+/* Course ID */
+.calendar-course-id {
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+/* Course Time */
+.calendar-course-time {
+  font-size: 9px;
+  opacity: 2;
+}
+
+/* Single-Hour Class - Full Pill */
+.calendar-course-single {
+  border-radius: 8px;
+}
+
+/* Top Multi-Hour Block */
+.calendar-course-start {
+  border-radius: 8px 8px 0 0;
+}
+
+/* Middle Multi-Hour Block */
+.calendar-course-middle {
+  border-radius: 0;
+  margin-top: -1px;
+}
+
+/* Bottom Multi-Hour Block */
+.calendar-course-end {
+  border-radius: 0 0 8px 8px;
+  margin-top: -2px;
 }
 
 
@@ -284,7 +331,7 @@
   align-items: flex-start;
 }
 
-/* Course Colors */
+/* Course Color Setup */
 .course-color {
   width: 8px;
   height: 105px;
@@ -292,18 +339,17 @@
   flex-shrink: 0;
 }
 
-/* Placeholders Examples */
-.course-color-1 {
-  background: var(--course-color-red);
-}
-
-.course-color-2 {
-  background: var(--course-color-blue);
-}
-
-.course-color-3 {
-  background: var(--course-color-green);
-}
+/* Course Colors */
+.course-color-1  { background: var(--course-color-red); }
+.course-color-2  { background: var(--course-color-orange); }
+.course-color-3  { background: var(--course-color-yellow); }
+.course-color-4  { background: var(--course-color-green); }
+.course-color-5  { background: var(--course-color-blue); }
+.course-color-6  { background: var(--course-color-pink); }
+.course-color-7  { background: var(--course-color-mint); }
+.course-color-8  { background: var(--course-color-gray); }
+.course-color-9  { background: var(--course-color-brown); }
+.course-color-10 { background: var(--course-color-teal); }
 
 /* Course Content */
 .course-content {

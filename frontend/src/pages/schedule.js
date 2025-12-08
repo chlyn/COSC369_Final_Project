@@ -311,16 +311,147 @@ export function generateCalendar() {
 }
 
 /* ------------------------------------------------------------------------------------------
+/* COURSE CALENDAR BLOCKS */
+
+const COURSE_COLORS = [
+  "course-color-1",
+  "course-color-2",
+  "course-color-3",
+  "course-color-4",
+  "course-color-5",
+  "course-color-6",
+  "course-color-7",
+  "course-color-8",
+  "course-color-9",
+  "course-color-10",
+];
+
+function toMinutes(timeStr) {
+    if (!timeStr) return null;
+    const [time, meridiem] = timeStr.split(" "); 
+    const [hourStr, minuteStr] = time.split(":");
+
+    let hour = parseInt(hourStr, 10);
+    let minutes = parseInt(minuteStr || "0", 10);
+
+    if (meridiem === "PM" && hour !== 12) hour += 12;
+    if (meridiem === "AM" && hour === 12) hour = 0;
+
+    return hour * 60 + minutes;
+}
+
+
+// Convert 24h hour -> "10:00 AM"
+function hourToLabel(hour) {
+  let suffix = hour >= 12 ? "PM" : "AM";
+  let displayHour = hour % 12 || 12;
+  return `${displayHour}:00 ${suffix}`;
+}
+
+function clearCalendarCourses() {
+    document
+      .querySelectorAll(".calendar-course")
+      .forEach((el) => el.remove());
+}
+
+// Render courses on calendar
+function renderCoursesOnCalendar(classes = []) {
+  const calendar = document.getElementById("calendar-grid");
+  if (!calendar) return;
+
+  clearCalendarCourses();
+
+  const CAL_START_HOUR = 7
+  const CAL_END_HOUR = 23;
+  const CAL_START_MIN = CAL_START_HOUR * 60;
+  const CAL_END_MIN = CAL_END_HOUR * 60;
+
+  classes.forEach((course, idx) => {
+    const { id, days, start, end } = course;
+    if (!days || !start || !end) return;
+
+    const colorClass = COURSE_COLORS[idx % COURSE_COLORS.length];
+
+    const startMin = toMinutes(start);
+    const endMin = toMinutes(end);
+    if (startMin == null || endMin == null || endMin <= startMin) return;
+
+    const fromMin = Math.max(startMin, CAL_START_MIN);
+    const toMin = Math.min(endMin, CAL_END_MIN);
+    if (toMin <= fromMin) return;
+
+    days.forEach((day) => {
+    const dayKey = day.toLowerCase();
+    const totalDuration = toMin - fromMin;
+
+    for (let h = CAL_START_HOUR; h < CAL_END_HOUR; h++) {
+        const rowStart = h * 60;
+        const rowEnd = (h + 1) * 60;
+
+        const overlapStart = Math.max(fromMin, rowStart);
+        const overlapEnd = Math.min(toMin, rowEnd);
+        if (overlapEnd <= overlapStart) continue;
+
+        const isFirstRowForCourse = fromMin >= rowStart && fromMin < rowEnd;
+        const isLastRowForCourse  = toMin > rowStart && toMin <= rowEnd;
+
+        let segmentType = "middle";
+        if (isFirstRowForCourse && isLastRowForCourse) {
+            segmentType = "single";
+        } 
+        else if (isFirstRowForCourse) {
+            segmentType = "start";
+        } 
+        else if (isLastRowForCourse) {
+            segmentType = "end";
+        }
+
+        if (segmentType !== "start" && segmentType !== "single") {
+            continue;
+        }
+
+        const localStart = fromMin - rowStart;
+        const topPct = (localStart / 60) * 100;
+
+        const heightPct = (totalDuration / 60) * 100;
+
+        const labelHour = h % 12 || 12;
+        const meridiem = h >= 12 ? "PM" : "AM";
+        const label = `${labelHour}:00 ${meridiem}`;
+
+        const cell = calendar.querySelector(
+            `.slot-cell[data-day="${dayKey}"][data-time="${label}"]`
+        );
+        if (!cell) continue;
+
+        const inner = document.createElement("div");
+        inner.className = `calendar-course ${colorClass}`;
+
+        inner.style.top = `${topPct}%`;
+        inner.style.height = `${heightPct}%`;
+        inner.style.left = "3px";
+        inner.style.right = "3px";
+
+        inner.innerHTML = `
+            <div class="calendar-course-id">${id || ""}</div>
+            <div class="calendar-course-time">${start} – ${end}</div>
+        `;
+
+        cell.appendChild(inner);
+    }
+    });
+
+  });
+}
+
+
+
+/* ------------------------------------------------------------------------------------------
 /* COURSE CARD UI SETUP */
 
-export function setupCourseCardUI(course, colorIndex = 0) {
-  const colors = [
-    "course-color-1",
-    "course-color-2",
-    "course-color-3",
-    "course-color-4",
-  ];
-  const colorClass = colors[colorIndex % colors.length];
+export function setupCourseCardUI (course, colorIndex = 0) {
+
+    const colorClass = COURSE_COLORS[colorIndex % COURSE_COLORS.length];
 
   const { id, name, professor, location, days, start, end } = course;
 

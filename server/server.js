@@ -85,11 +85,16 @@ app.post("/api/chat", async (req, res) => {
       semester: "Fall 2025", // TODO: make this dynamic
     }).lean();
 
-    // Build student's enrolled classes as full course objects
+    // Build student's enrolled classes as full course objects (case/format-insensitive)
     let studentClasses = [];
     if (currentSchedule && currentSchedule.classes?.length) {
-      const enrolledIds = currentSchedule.classes;
-      studentClasses = classesCatalog.filter((c) => enrolledIds.includes(c.id));
+      const enrolledIdSet = new Set(
+        currentSchedule.classes.map((id) => normalizeCourseId(id))
+      );
+
+      studentClasses = classesCatalog.filter((c) =>
+        enrolledIdSet.has(normalizeCourseId(c.id))
+      );
     }
 
     // ------------------------------------------------------------
@@ -247,6 +252,49 @@ app.delete("/api/conversations/:id", async (req, res) => {
     return res.status(404).json({ error: "Conversation not found" });
   res.status(204).send();
 });
+
+
+
+// -----------------------------------------------------------------------------
+// Helper: build a consistent schedule response with full course objects
+// -----------------------------------------------------------------------------
+function normalizeCourseId(id) {
+  return (id || "")
+    .toString()
+    .trim()
+    .toUpperCase()
+}
+
+async function buildScheduleResponse(userId, semester = "Fall 2025") {
+  const classesCatalog = await Course.find({}).lean();
+
+  const schedule = await StudentSchedule.findOne({
+    userId,
+    semester,
+  }).lean();
+
+  if (!schedule) {
+    return {
+      semester,
+      classes: [],
+    };
+  }
+
+  const idSet = new Set(
+    (schedule.classes || []).map((id) => normalizeCourseId(id))
+  );
+
+  const enrolledCourses = classesCatalog.filter((c) =>
+    idSet.has(normalizeCourseId(c.id))
+  );
+
+  return {
+    semester: schedule.semester || semester,
+    classes: enrolledCourses,
+  };
+}
+
+
 // -----------------------------------------------------------------------------
 // Get the current student's schedule (with full course details)
 // -----------------------------------------------------------------------------
@@ -254,24 +302,8 @@ app.get("/api/schedule", async (req, res) => {
   try {
     const effectiveUserId = req.query.userId || DEMO_USER_ID;
 
-    const classesCatalog = await Course.find({}).lean();
-
-    const currentSchedule = await StudentSchedule.findOne({
-      userId: effectiveUserId,
-      semester: "Fall 2025",
-    }).lean();
-
-    let enrolledCourses = [];
-
-    if (currentSchedule && currentSchedule.classes?.length) {
-      const idSet = new Set(currentSchedule.classes);
-      enrolledCourses = classesCatalog.filter((c) => idSet.has(c.id));
-    }
-
-    res.json({
-      semester: currentSchedule?.semester || "Fall 2025",
-      classes: enrolledCourses,
-    });
+    const payload = await buildScheduleResponse(effectiveUserId, "Fall 2025");
+    res.json(payload);
   } catch (err) {
     console.error("Error in GET /api/schedule:", err);
     res.status(500).json({ error: "Failed to load schedule" });
@@ -283,55 +315,93 @@ app.get("/api/schedule", async (req, res) => {
 // -----------------------------------------------------------------------------
 app.post("/api/schedule/add", async (req, res) => {
   try {
-    const { courseId, semester = "Fall 2025", userId } = req.body;
+    let { courseId, semester = "Fall 2025", userId } = req.body;
     const effectiveUserId = userId || DEMO_USER_ID;
 
     if (!courseId) {
       return res.status(400).json({ error: "courseId is required" });
     }
 
-    const course = await Course.findOne({ id: courseId });
+    // 1) Normalize user input to uppercase, no spaces changed
+    const normalizedId = normalizeCourseId(courseId); // e.g. "math301" -> "MATH301"
+
+    // 2) Look for a course with *exactly* that id in Mongo
+    const course = await Course.findOne({ id: normalizedId });
+
     if (!course) {
-      return res.status(404).json({ error: "Course not found" });
+      console.log(
+        "Known course IDs:",
+        (await Course.find({}, "id")).map((c) => c.id)
+      );
+      console.log("User tried to add:", courseId, "→", normalizedId);
+
+      return res
+        .status(404)
+        .json({ error: `Course '${normalizedId}' was not found.` });
     }
 
-    const schedule = await StudentSchedule.findOneAndUpdate(
+    // 3) Check if student already has this course in their schedule
+    let scheduleDoc = await StudentSchedule.findOne({
+      userId: effectiveUserId,
+      semester,
+    });
+
+    if (
+      scheduleDoc &&
+      (scheduleDoc.classes || []).some(
+        (id) => normalizeCourseId(id) === normalizedId
+      )
+    ) {
+      return res
+        .status(409)
+        .json({ error: "Course already added to your schedule." });
+    }
+
+    // 4) Store that uppercase ID in the schedule
+    await StudentSchedule.findOneAndUpdate(
       { userId: effectiveUserId, semester },
-      { $addToSet: { classes: courseId } },
+      { $addToSet: { classes: normalizedId } },
       { new: true, upsert: true }
     );
 
-    res.json(schedule);
+    // 5) Return full schedule
+    const payload = await buildScheduleResponse(effectiveUserId, semester);
+    res.json(payload);
   } catch (err) {
     console.error("Error in POST /api/schedule/add:", err);
     res.status(500).json({ error: "Failed to add course" });
   }
 });
 
+
 // -----------------------------------------------------------------------------
 // Drop a course from the student's schedule
 // -----------------------------------------------------------------------------
 app.post("/api/schedule/drop", async (req, res) => {
   try {
-    const { courseId, semester = "Fall 2025", userId } = req.body;
+    let { courseId, semester = "Fall 2025", userId } = req.body;
     const effectiveUserId = userId || DEMO_USER_ID;
 
     if (!courseId) {
       return res.status(400).json({ error: "courseId is required" });
     }
 
-    const schedule = await StudentSchedule.findOneAndUpdate(
+    const normalizedId = normalizeCourseId(courseId);
+
+    await StudentSchedule.findOneAndUpdate(
       { userId: effectiveUserId, semester },
-      { $pull: { classes: courseId } },
+      { $pull: { classes: normalizedId } },
       { new: true }
     );
 
-    res.json(schedule);
+    const payload = await buildScheduleResponse(effectiveUserId, semester);
+    res.json(payload);
   } catch (err) {
     console.error("Error in POST /api/schedule/drop:", err);
     res.status(500).json({ error: "Failed to drop course" });
   }
 });
+
 
 // -----------------------------------------------------------------------------
 // AUTH: Sign up

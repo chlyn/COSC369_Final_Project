@@ -1,5 +1,6 @@
 /* ------------------------------------------------------------------------------------------
 /* SEMESTER MENU UI SETUP */
+
 import { getCurrentUserId } from "./authentication.js";
 
 export function setupSemesterMenuUI() {
@@ -66,6 +67,8 @@ export function setupSemesterMenuUI() {
   });
 }
 
+
+
 /* ------------------------------------------------------------------------------------------
 /* ADD CLASS SETUP */
 
@@ -74,6 +77,8 @@ let addCourseForm = null;
 let addCourseInput = null;
 let addCourseClose = null;
 let addCourseCancel = null;
+let addCourseSubmit = null;
+let addCourseError = null;
 
 export function openAddCourseModal() {
   if (!addCourseModal) return;
@@ -88,6 +93,14 @@ function closeAddCourseModal() {
   if (!addCourseModal) return;
   addCourseModal.classList.add("modal-hidden");
   if (addCourseForm) addCourseForm.reset();
+  if (addCourseSubmit) addCourseSubmit.disabled = true;
+
+  if (addCourseError) {
+    addCourseError.classList.add("hidden");
+  }
+  if (addCourseInput) {
+    addCourseInput.classList.remove("modal-field-input-error");
+  }
 }
 
 function setupAddCourseModal() {
@@ -96,7 +109,25 @@ function setupAddCourseModal() {
   addCourseInput = document.getElementById("modal-course-id");
   addCourseClose = document.getElementById("add-course-close");
   addCourseCancel = document.getElementById("add-course-cancel");
+  addCourseSubmit = document.getElementById("add-course-submit");
+  addCourseError = document.getElementById("add-course-error");
   const addClassBtn = document.querySelector(".add-btn");
+
+  if (addCourseSubmit) {
+    addCourseSubmit.disabled = true;
+  }
+
+  if (addCourseInput && addCourseSubmit) {
+    addCourseInput.addEventListener("input", () => {
+      const value = addCourseInput.value.trim();
+      addCourseSubmit.disabled = value.length === 0;
+
+      if (addCourseError && value.length > 0) {
+        addCourseError.classList.add("hidden");
+        addCourseInput.classList.remove("modal-field-input-error");
+      }
+    });
+  }
 
   if (addClassBtn) {
     addClassBtn.addEventListener("click", () => {
@@ -129,8 +160,13 @@ function setupAddCourseModal() {
   if (addCourseForm && addCourseInput) {
     addCourseForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const courseId = addCourseInput.value.trim();
-      if (!courseId) return;
+      
+      // 1) Take raw input
+      const rawValue = addCourseInput.value.trim();
+      if (!rawValue) return;
+
+      // 2) Force uppercase here
+      const courseId = rawValue.toUpperCase();
 
       try {
         const userId = getCurrentUserId();
@@ -146,19 +182,56 @@ function setupAddCourseModal() {
         const data = await res.json();
 
         if (!res.ok) {
-          alert(data.error || "Failed to add course.");
+          let message = "Could not find course.";
+
+          if (data?.error) {
+            // Normalize duplicate-course message
+            if (
+              data.error.toLowerCase().includes("already") ||
+              data.error.toLowerCase().includes("exists")
+            ) {
+              message = "Course already added to your schedule.";
+            } else {
+              message = data.error;
+            }
+          }
+
+          if (addCourseError) {
+            addCourseError.querySelector(".modal-field-error-text").textContent = message;
+            addCourseError.classList.remove("hidden");
+          }
+
+          if (addCourseInput) {
+            addCourseInput.classList.add("modal-field-input-error");
+          }
+
           return;
         }
 
+
         closeAddCourseModal();
         await loadScheduleCourses();
+
       } catch (err) {
-        console.error("addCourse error:", err);
-        alert("Sorry, something went wrong adding this course.");
-      }
+          console.error("addCourse error:", err);
+          const fallback = "Sorry, something went wrong adding this course.";
+
+          if (addCourseError) {
+            addCourseError
+              .querySelector(".modal-field-error-text")
+              .textContent = fallback;
+            addCourseError.classList.remove("hidden");
+          }
+
+          if (addCourseInput) {
+            addCourseInput.classList.add("modal-field-input-error");
+          }
+        }
     });
   }
 }
+
+
 
 /* ------------------------------------------------------------------------------------------
 /* DROP CLASS SETUP */
@@ -263,6 +336,8 @@ function setupDropCourseModal() {
   });
 }
 
+
+
 /* ------------------------------------------------------------------------------------------
 /* CALENDAR SETUP */
 
@@ -309,6 +384,8 @@ export function generateCalendar() {
 
   container.innerHTML = headerHTML + rowsHTML;
 }
+
+
 
 /* ------------------------------------------------------------------------------------------
 /* COURSE CALENDAR BLOCKS */
@@ -504,6 +581,8 @@ export function setupCourseCardUI (course, colorIndex = 0) {
     `;
 }
 
+
+
 /* ------------------------------------------------------------------------------------------
 /* LOAD SCHEDULED COURSES */
 
@@ -560,6 +639,8 @@ export async function loadScheduleCourses() {
       "<p class='empty-courses'>Sorry, we couldn't load your courses.</p>";
   }
 }
+
+
 
 /* ------------------------------------------------------------------------------------------
 /* EXPORTING SCHEDULE PAGE */

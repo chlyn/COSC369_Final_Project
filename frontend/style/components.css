@@ -193,8 +193,45 @@
 /* Field Label */
 .modal-label {
   display: block;
-  font-size: 13px;
-  margin-bottom: 4px;
+  margin-bottom: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: color-mix(in srgb, var(--text-secondary) 80%, transparent);
+}
+
+/* Field Input Box */
+.modal-label input {
+  width: 100%;
+  height: 40px;
+  margin-top: 4px;
+  padding: 9px 10px;
+  border-radius: 8px;
+  border:  1px solid var(--divider-default);
+  background: color-mix(in srgb, var(--color-accent-strong) 10%, #ffffff);
+  color: var(--text-primary);
+}
+
+.modal-field-error {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--danger-text);
+}
+
+.modal-field-error-icon {
+  font-size: 16px;
+  color: var(--danger-default);
+}
+
+.modal-label input.modal-field-input-error {
+  border-color: var(--danger-default);
+  background: color-mix(in srgb, var(--danger-bg) 10%, #ffffff 10%);;
+}
+
+.hidden {
+  display: none;
 }
 
 .modal-actions {
@@ -225,6 +262,12 @@
 /* Primary Button Interaction */
 .modal-btn-primary:hover {
   background: var(--color-primary-hover);
+}
+
+.modal-btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
 }
 
 /* Secondary Button */

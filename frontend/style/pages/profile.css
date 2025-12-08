@@ -118,7 +118,7 @@
 #page-profile .profile-pill {
   padding: 3px 12px;
   border-radius: 999px;
-  background: #f0f0f0;
+  background: color-mix(in srgb, var(--color-accent-default) 20%, transparent);
   font-size: 0.8rem;
 }
 

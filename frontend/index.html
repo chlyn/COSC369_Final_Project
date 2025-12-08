@@ -558,6 +558,14 @@
                     autocomplete="off"
                     required
                   />
+
+                  <select
+                    id="edit-profile-select"
+                    class="modal-hidden"
+                    required
+                  >
+                    <!-- Options will be populated dynamically -->
+                  </select>
                 </form>
               </div>
 
@@ -575,6 +583,64 @@
                   class="modal-btn modal-btn-primary"
                   id="edit-profile-submit"
                   form="edit-profile-form"
+                >
+                  Save
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- EDIT DROPDOWN MODAL (for major and minor) -->
+        <div id="edit-dropdown-modal" class="modal-hidden">
+          <div class="modal-backdrop">
+            <div
+              class="modal-dialog"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="edit-dropdown-title"
+            >
+              <!-- MODAL HEADER -->
+              <div class="modal-header">
+                <h2 id="edit-dropdown-title">Edit Field</h2>
+                <button
+                  type="button"
+                  class="modal-close-btn"
+                  id="edit-dropdown-close"
+                >
+                  <span class="material-icons">close</span>
+                </button>
+              </div>
+
+              <!-- MODAL CONTENT -->
+              <div class="modal-content">
+                <form id="edit-dropdown-form">
+                  <label
+                    for="edit-dropdown-select"
+                    class="modal-label"
+                    id="edit-dropdown-label"
+                  >
+                    Field
+                  </label>
+                  <select id="edit-dropdown-select" required>
+                    <!-- Options populated by JS -->
+                  </select>
+                </form>
+              </div>
+
+              <!-- FOOTER BUTTONS -->
+              <div class="modal-actions">
+                <button
+                  type="button"
+                  class="modal-btn modal-btn-secondary"
+                  id="edit-dropdown-cancel"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  class="modal-btn modal-btn-primary"
+                  id="edit-dropdown-submit"
+                  form="edit-dropdown-form"
                 >
                   Save
                 </button>

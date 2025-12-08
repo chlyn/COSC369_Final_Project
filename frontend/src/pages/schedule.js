@@ -1,5 +1,6 @@
 /* ------------------------------------------------------------------------------------------
 /* SEMESTER MENU UI SETUP */
+
 import { getCurrentUserId } from "./authentication.js";
 
 export function setupSemesterMenuUI() {
@@ -65,6 +66,8 @@ export function setupSemesterMenuUI() {
     });
   });
 }
+
+
 
 /* ------------------------------------------------------------------------------------------
 /* ADD CLASS SETUP */
@@ -159,6 +162,8 @@ function setupAddCourseModal() {
     });
   }
 }
+
+
 
 /* ------------------------------------------------------------------------------------------
 /* DROP CLASS SETUP */
@@ -263,6 +268,8 @@ function setupDropCourseModal() {
   });
 }
 
+
+
 /* ------------------------------------------------------------------------------------------
 /* CALENDAR SETUP */
 
@@ -309,6 +316,8 @@ export function generateCalendar() {
 
   container.innerHTML = headerHTML + rowsHTML;
 }
+
+
 
 /* ------------------------------------------------------------------------------------------
 /* COURSE CALENDAR BLOCKS */
@@ -504,6 +513,8 @@ export function setupCourseCardUI (course, colorIndex = 0) {
     `;
 }
 
+
+
 /* ------------------------------------------------------------------------------------------
 /* LOAD SCHEDULED COURSES */
 
@@ -560,6 +571,8 @@ export async function loadScheduleCourses() {
       "<p class='empty-courses'>Sorry, we couldn't load your courses.</p>";
   }
 }
+
+
 
 /* ------------------------------------------------------------------------------------------
 /* EXPORTING SCHEDULE PAGE */

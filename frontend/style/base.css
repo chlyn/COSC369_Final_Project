@@ -73,7 +73,6 @@ CSS TABLE OF CONTENTS:
     --course-color-brown:  #E3CCE3; 
     --course-color-teal:   #BEDBEA; 
 
-
     /* 2 - OG */
     /* --course-color-red: #F28A9C;
     --course-color-orange: #F5A86A;
@@ -97,7 +96,6 @@ CSS TABLE OF CONTENTS:
     --course-color-gray:   #DDD9F2;
     --course-color-brown:  #D8C6EA;
     --course-color-teal:   #C2D3F0; */
-
 
     /* Modal */
     --modal-background: color-mix(in srgb, #000000 5%, var(--color-primary-default) 2%);

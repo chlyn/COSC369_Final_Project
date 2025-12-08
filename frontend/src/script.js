@@ -39,7 +39,16 @@ import { setupProfilePage } from "./pages/profile.js";
 /* INITIALIZING APP */
 
 document.addEventListener("DOMContentLoaded", () => {
-  setupAuth();
+  setupAuth(() => {
+    // run this ONLY after the user is authenticated
+    loadChatHistory({
+      addMessage,
+      showPage,
+      getChatHistory,
+      getCurrentConversationId,
+      setCurrentConversationId,
+    });
+  });
 
   window.showAppPage = showPage;
 
@@ -71,12 +80,4 @@ document.addEventListener("DOMContentLoaded", () => {
   setupChatInputHandlers();
 
   showPage("page-welcome", "Welcome");
-
-  loadChatHistory({
-    addMessage,
-    showPage,
-    getChatHistory,
-    getCurrentConversationId,
-    setCurrentConversationId,
-  });
 });

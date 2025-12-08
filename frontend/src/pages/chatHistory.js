@@ -13,7 +13,14 @@ export async function loadChatHistory({
   if (!list) return;
 
   const userId = getCurrentUserId();
-  const query = userId ? `?userId=${encodeURIComponent(userId)}` : "";
+
+  // If there's no logged-in user, clear the UI and don't hit the API
+  if (!userId) {
+    list.innerHTML = "";
+    return;
+  }
+
+  const query = `?userId=${encodeURIComponent(userId)}`;
 
   try {
     const res = await fetch(`http://localhost:3001/api/conversations${query}`);

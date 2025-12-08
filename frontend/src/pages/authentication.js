@@ -87,7 +87,7 @@ export function logout() {
 /* AUTHENTICATION SETUP
 ------------------------------------------------------------------------------------------ */
 
-export function setupAuth() {
+export function setupAuth(onAuthComplete) {
   const authContainer = document.getElementById("auth");
   const appContent = document.getElementById("app-content");
 
@@ -98,7 +98,7 @@ export function setupAuth() {
     return;
   }
 
-  // 🔗 HOOK SIGN OUT BUTTON (this menu is in the sidebar)
+  // HOOK SIGN OUT BUTTON (this menu is in the sidebar)
   const signOutBtn = document.querySelector(
     "#profile-menu .profile-menu-item:last-child"
   );
@@ -108,12 +108,16 @@ export function setupAuth() {
     });
   }
 
-  // If we already have a stored user, skip auth screens
   const existing = getCurrentUser();
+  // If we already have a stored user, skip auth screens
   if (existing) {
     applyUserToUI(existing);
     authContainer.style.display = "none";
     appContent.classList.remove("hidden");
+
+    if (typeof onAuthComplete === "function") {
+      onAuthComplete(existing);
+    }
     return;
   }
 
@@ -157,6 +161,20 @@ export function setupAuth() {
         : "visibility_off";
     });
   });
+
+  function completeAuth(user) {
+    if (user) {
+      setCurrentUser(user);
+      applyUserToUI(user);
+    }
+    authContainer.style.display = "none";
+    appContent.classList.remove("hidden");
+
+    // normal login / signup
+    if (typeof onAuthComplete === "function") {
+      onAuthComplete(user);
+    }
+  }
 
   // SIGN UP
   const createForm = signupSection.querySelector("#create-form");
@@ -237,15 +255,5 @@ export function setupAuth() {
         alert("Sorry, something went wrong logging you in.");
       }
     });
-  }
-
-  function completeAuth(user) {
-    if (user) {
-      setCurrentUser(user);
-      applyUserToUI(user);
-    }
-
-    authContainer.style.display = "none";
-    appContent.classList.remove("hidden");
   }
 }

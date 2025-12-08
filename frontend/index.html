@@ -604,7 +604,7 @@
       </div>
     </div>
 
-    <!-- Add Course Modal -->
+    <!-- ADD COURSE MODAL -->
     <div id="add-course-modal" class="modal-hidden">
       <div class="modal-backdrop">
         <div
@@ -650,6 +650,42 @@
         </div>
       </div>
     </div>
+
+    <!-- DROP COURSE MODAL -->
+    <div id="drop-course-modal" class="modal-hidden">
+      
+      <div class="modal-backdrop">
+
+        <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="drop-course-title">
+
+          <div class="modal-header">
+            <h2 id="drop-course-title">Drop Course?</h2>
+
+            <button type="button" class="modal-close-btn" id="drop-course-close">
+              <span class="material-icons">close</span>
+            </button>
+          </div>
+
+          <div class="modal-content">
+            <p class="modal-subtitle" id="drop-course-message"></p>
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" class="modal-btn modal-btn-secondary" id="drop-course-cancel">
+              Cancel
+            </button>
+
+            <button type="button" class="modal-btn modal-btn-primary" id="drop-course-confirm">
+              Delete
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
 
     <script type="module" src="src/script.js"></script>
     <script>

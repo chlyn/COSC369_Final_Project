@@ -36,7 +36,8 @@ CSS TABLE OF CONTENTS:
     --color-primary-active: #613693;
     --color-secondary: #9D6EDE;
     --color-tertiary: #B996EA;
-    --color-accent: #D4BFF3;
+    --color-accent-default: #D4BFF3;
+    --color-accent-hover: #F6F2FF;
     --color-accent-strong: #D8D3E6;
 
     /* Danger (errors, critical actions) */
@@ -69,6 +70,10 @@ CSS TABLE OF CONTENTS:
     --course-color-gray: #BFC6D1;
     --course-color-brown: #C99F80;
     --course-color-teal: #6CC4C8;
+
+    /* Modal */
+    --modal-background: color-mix(in srgb, #000000 5%, var(--color-primary-default) 5%);
+    --modal-border: #D4BFF3;
     
     /* Shadows */
     --shadow-xs: 

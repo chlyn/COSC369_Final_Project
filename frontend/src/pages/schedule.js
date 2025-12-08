@@ -171,6 +171,107 @@ function setupAddCourseModal() {
 
 
 /* ------------------------------------------------------------------------------------------
+/* DROP CLASS SETUP */
+
+let dropCourseModal = null;
+let dropCourseMessage = null;
+let dropCourseClose = null;
+let dropCourseCancel = null;
+let dropCourseConfirm = null;
+let dropCourseCurrentId = null;
+
+function openDropCourseModal(courseId) {
+    if (!dropCourseModal) return;
+    dropCourseCurrentId = courseId;
+
+    if (dropCourseMessage) {
+        dropCourseMessage.innerHTML = `Are you sure you want to drop out off  <strong>'${courseId}'</strong>?`;
+    }
+
+    dropCourseModal.classList.remove("modal-hidden");
+}
+
+function closeDropCourseModal() {
+    dropCourseCurrentId = null;
+    if (dropCourseModal) {
+        dropCourseModal.classList.add("modal-hidden");
+    }
+}
+
+async function dropCourse(courseId) {
+    if (!courseId) return;
+
+    try {
+        const res = await fetch("http://localhost:3001/api/schedule/drop", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ courseId }),
+        });
+
+        if (!res.ok) {
+            console.error("Drop failed", await res.text());
+            alert("Sorry, something went wrong dropping this course.");
+            return;
+        }
+
+        await loadScheduleCourses();
+    } catch (err) {
+        console.error("dropCourse error:", err);
+        alert("Sorry, something went wrong dropping this course.");
+    }
+}
+
+function setupDropCourseModal() {
+    dropCourseModal = document.getElementById("drop-course-modal");
+    dropCourseMessage = document.getElementById("drop-course-message");
+    dropCourseClose = document.getElementById("drop-course-close");
+    dropCourseCancel = document.getElementById("drop-course-cancel");
+    dropCourseConfirm = document.getElementById("drop-course-confirm");
+
+    if (!dropCourseModal) return;
+
+    // Close button (X)
+    if (dropCourseClose) {
+        dropCourseClose.addEventListener("click", () => {
+            closeDropCourseModal();
+        });
+    }
+
+    // Cancel button
+    if (dropCourseCancel) {
+        dropCourseCancel.addEventListener("click", () => {
+            closeDropCourseModal();
+        });
+    }
+
+    // Confirm delete button
+    if (dropCourseConfirm) {
+        dropCourseConfirm.addEventListener("click", async () => {
+            if (!dropCourseCurrentId) {
+                closeDropCourseModal();
+                return;
+            }
+
+            const courseId = dropCourseCurrentId;
+            closeDropCourseModal();
+            await dropCourse(courseId);
+        });
+    }
+
+    // Click on backdrop closes modal
+    dropCourseModal.addEventListener("click", (e) => {
+        if (
+            e.target === dropCourseModal ||
+            e.target.classList.contains("modal-backdrop")
+        ) {
+            closeDropCourseModal();
+        }
+    });
+}
+
+
+
+/* ------------------------------------------------------------------------------------------
 /* CALENDAR SETUP */
 
 export function generateCalendar() {
@@ -326,30 +427,7 @@ export async function loadScheduleCourses() {
                 const courseId = btn.dataset.courseId;
                 if (!courseId) return;
 
-                const confirmDrop = window.confirm(
-                    `Remove ${courseId} from your schedule?`
-                );
-                if (!confirmDrop) return;
-
-                try {
-                    const res = await fetch("http://localhost:3001/api/schedule/drop", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ courseId }),
-                    });
-
-                    if (!res.ok) {
-                        console.error("Drop failed", await res.text());
-                        alert("Sorry, something went wrong dropping this course.");
-                        return;
-                    }
-
-                    // Reload the schedule list
-                    loadScheduleCourses();
-                } catch (err) {
-                    console.error("dropCourse error:", err);
-                    alert("Sorry, something went wrong dropping this course.");
-                }
+                openDropCourseModal(courseId);
             });
         });
     } catch (err) {
@@ -369,5 +447,6 @@ export function SchedulePage() {
     generateCalendar();
     setupSemesterMenuUI();
     setupAddCourseModal();
+    setupDropCourseModal();
 
 }

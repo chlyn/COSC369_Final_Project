@@ -33,6 +33,7 @@ import {
   loadScheduleCourses,
 } from "./pages/schedule.js";
 import { setupAuth } from "./pages/authentication.js";
+import { setupProfilePage } from "./pages/profile.js";
 
 /* ------------------------------------------------------------------------------------------
 /* INITIALIZING APP */
@@ -51,10 +52,15 @@ document.addEventListener("DOMContentLoaded", () => {
     onSchedulePage: () => {
       loadScheduleCourses();
     },
+    onProfilePage: () => {
+      showPage("page-profile", "My Profile");
+    },
   });
 
   setupDeleteConvoModal();
   setupUserMenu();
+
+  setupProfilePage();
 
   setupSchedulePage();
 

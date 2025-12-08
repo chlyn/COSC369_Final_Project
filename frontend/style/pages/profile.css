@@ -6,13 +6,6 @@
   padding: 24px;
 }
 
-#page-profile .profile-sidebar {
-  width: 200px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
 #page-profile .profile-page-title {
   font-size: 1rem;
   font-weight: 600;
@@ -143,12 +136,6 @@
   #page-profile .profile-layout {
     flex-direction: column;
     padding: 16px;
-  }
-
-  #page-profile .profile-sidebar {
-    width: 100%;
-    flex-direction: row;
-    flex-wrap: wrap;
   }
 
   #page-profile .profile-tab {

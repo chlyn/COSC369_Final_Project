@@ -3,6 +3,14 @@
 
 import { getCurrentUserId } from "./authentication.js";
 
+const DEFAULT_SEMESTER = "Fall 2025";
+let currentSemester = DEFAULT_SEMESTER;
+
+export function getCurrentSemester() {
+  return currentSemester;
+}
+
+
 export function setupSemesterMenuUI() {
   const semesterBtn = document.getElementById("semester-btn");
   const semesterMenu = document.getElementById("semester-menu");
@@ -10,26 +18,22 @@ export function setupSemesterMenuUI() {
   const semesterBtnLabel = semesterBtn
     ? semesterBtn.querySelector("span")
     : null;
-  const CURRENT_SEMESTER = "Fall 2025";
 
   // Initializing current semester
   if (semesterBtn && semesterBtnLabel && semesterItems.length > 0) {
-    // Finding current semester in the menu
     let activeItem = Array.from(semesterItems).find(
-      (item) => item.textContent.trim() === CURRENT_SEMESTER
+      (item) => item.textContent.trim() === DEFAULT_SEMESTER
     );
 
-    // If current semester not found, use the first option as a default
     if (!activeItem) activeItem = semesterItems[0];
 
-    // Setting the button label to the active semester text
-    semesterBtnLabel.textContent = activeItem.textContent.trim();
-
-    // Marking that semester option as active
+    const labelText = activeItem.textContent.trim();
+    semesterBtnLabel.textContent = labelText;
     activeItem.classList.add("active");
+    currentSemester = labelText; // sync with global
   }
 
-  // Menu open and close implementation
+  // Menu open / close
   if (semesterBtn && semesterMenu) {
     semesterBtn.addEventListener("click", (e) => {
       e.stopPropagation();
@@ -37,35 +41,36 @@ export function setupSemesterMenuUI() {
         semesterMenu.style.display === "flex" ? "none" : "flex";
     });
 
-    // Closing menu when clicked anywhere outside of the menu
     document.addEventListener("click", () => {
       semesterMenu.style.display = "none";
     });
 
-    // Preventing the menu from closing after choosing a semester
     semesterMenu.addEventListener("click", (e) => {
       e.stopPropagation();
     });
   }
 
-  // Main semester menu implementation
+  // Clicking a semester item
   semesterItems.forEach((item) => {
-    item.addEventListener("click", (e) => {
+    item.addEventListener("click", async (e) => {
       e.stopPropagation();
 
       const label = item.textContent.trim();
+      currentSemester = label; // 🔴 update global semester
 
-      // Updating button label to the selected semester text
       if (semesterBtnLabel) {
         semesterBtnLabel.textContent = label;
       }
 
-      // Updating which option appears active in the dropdown
       semesterItems.forEach((i) => i.classList.remove("active"));
       item.classList.add("active");
+
+      // Reload schedule for the newly selected semester
+      await loadScheduleCourses();
     });
   });
 }
+
 
 
 
@@ -170,7 +175,9 @@ function setupAddCourseModal() {
 
       try {
         const userId = getCurrentUserId();
-        const body = { courseId };
+        const semester = currentSemester || DEFAULT_SEMESTER;
+
+        const body = { courseId, semester };
         if (userId) body.userId = userId;
 
         const res = await fetch("http://localhost:3001/api/schedule/add", {
@@ -266,7 +273,9 @@ async function dropCourse(courseId) {
 
   try {
     const userId = getCurrentUserId();
-    const body = { courseId };
+    const semester = currentSemester || DEFAULT_SEMESTER;
+
+    const body = { courseId, semester };
     if (userId) body.userId = userId;
 
     const res = await fetch("http://localhost:3001/api/schedule/drop", {
@@ -595,21 +604,28 @@ export async function loadScheduleCourses() {
 
   try {
     const userId = getCurrentUserId();
-    const query = userId ? `?userId=${encodeURIComponent(userId)}` : "";
+    const semester = currentSemester || DEFAULT_SEMESTER;
 
-    const res = await fetch(`http://localhost:3001/api/schedule${query}`);
+    const params = new URLSearchParams();
+    if (userId) params.set("userId", userId);
+    if (semester) params.set("semester", semester);
+
+    const res = await fetch(
+      `http://localhost:3001/api/schedule?${params.toString()}`
+    );
     if (!res.ok) throw new Error("Failed to fetch schedule");
 
     const data = await res.json();
-    const { semester, classes } = data;
+    const { classes } = data;
 
     if (titleEl && semester) {
-      titleEl.textContent = `Courses`;
+      titleEl.textContent = `${semester} Courses`;
     }
 
     if (!classes || !classes.length) {
       container.innerHTML =
         "<p class='empty-courses'>You don't have any courses in your schedule yet.</p>";
+      clearCalendarCourses();
       return;
     }
 
@@ -619,7 +635,6 @@ export async function loadScheduleCourses() {
 
     container.innerHTML = cardsHTML;
 
-    // Wire up the X buttons after rendering the cards
     const removeButtons = container.querySelectorAll(".course-remove-btn");
     removeButtons.forEach((btn) => {
       btn.addEventListener("click", async (e) => {
@@ -632,13 +647,13 @@ export async function loadScheduleCourses() {
     });
 
     renderCoursesOnCalendar(classes);
-    
   } catch (err) {
     console.error("loadScheduleCourses error:", err);
     container.innerHTML =
       "<p class='empty-courses'>Sorry, we couldn't load your courses.</p>";
   }
 }
+
 
 
 

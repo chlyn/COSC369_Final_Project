@@ -11,6 +11,14 @@ const courseSchema = new mongoose.Schema(
     name: { type: String, required: true },
     professor: { type: String, required: true },
     location: { type: String, required: true },
+
+    // which semester this section is offered
+    semester: {
+      type: String,
+      enum: ["Fall 2025", "Winter 2026", "Spring 2026"],
+      default: "Fall 2025",
+    },
+
     days: {
       type: [String], // ["Mon", "Wed"]
       default: [],

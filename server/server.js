@@ -308,8 +308,11 @@ async function buildScheduleResponse(userId, semester = "Fall 2025") {
     (schedule.classes || []).map((id) => normalizeCourseId(id))
   );
 
-  const enrolledCourses = classesCatalog.filter((c) =>
-    idSet.has(normalizeCourseId(c.id))
+  // Only include courses matching IDs AND the selected semester
+  const enrolledCourses = classesCatalog.filter(
+    (c) =>
+      idSet.has(normalizeCourseId(c.id)) &&
+      (c.semester === semester || !c.semester) // tolerate missing semester
   );
 
   return {
@@ -318,20 +321,23 @@ async function buildScheduleResponse(userId, semester = "Fall 2025") {
   };
 }
 
+
 // -----------------------------------------------------------------------------
 // Get the current student's schedule (with full course details)
 // -----------------------------------------------------------------------------
 app.get("/api/schedule", async (req, res) => {
   try {
     const effectiveUserId = req.query.userId || DEMO_USER_ID;
+    const semester = req.query.semester || "Fall 2025";
 
-    const payload = await buildScheduleResponse(effectiveUserId, "Fall 2025");
+    const payload = await buildScheduleResponse(effectiveUserId, semester);
     res.json(payload);
   } catch (err) {
     console.error("Error in GET /api/schedule:", err);
     res.status(500).json({ error: "Failed to load schedule" });
   }
 });
+
 
 // -----------------------------------------------------------------------------
 // Add a course to the student's schedule
